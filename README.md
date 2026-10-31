@@ -1,6 +1,6 @@
 # Senate 2026 Battleground Board
 
-A one-page dashboard comparing **prediction markets** and **polling averages** for six 2026 U.S. Senate races heading into Election Day (Tuesday, November 3, 2026):
+A one-page dashboard comparing **prediction markets** and **polling averages** for seven 2026 U.S. Senate races heading into Election Day (Tuesday, November 3, 2026):
 
 | Race | Democrat | Republican |
 |---|---|---|
@@ -8,6 +8,7 @@ A one-page dashboard comparing **prediction markets** and **polling averages** f
 | Ohio (special) | Sherrod Brown | Jon Husted (incumbent) |
 | Michigan (open, D-held) | Abdul El-Sayed | Mike Rogers |
 | Maine | Troy Jackson | Susan Collins (incumbent) |
+| Kansas | Adam Hamilton | Roger Marshall (incumbent) |
 | South Carolina | Annie Andrews | Darline Graham Nordone (incumbent, appointed) |
 | Minnesota (open, D-held) | Peggy Flanagan | Michele Tafoya |
 

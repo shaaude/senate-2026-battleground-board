@@ -1,4 +1,4 @@
-"""Refresh Kalshi and Polymarket prices for the six Senate races.
+"""Refresh Kalshi and Polymarket prices for the seven Senate races.
 
 Runs every 15 minutes from .github/workflows/markets.yml. Reads only public,
 unauthenticated market-data endpoints, updates data/races.json in place, adds
@@ -23,16 +23,18 @@ KALSHI = {
     "OH": ("SENATEOHS-26", "https://kalshi.com/markets/senateohs/special-senate-election-in-ohio/senateohs-26"),
     "MI": ("SENATEMI-26", "https://kalshi.com/markets/senatemi/michigan-senate-race/senatemi-26"),
     "ME": ("SENATEME-26", "https://kalshi.com/markets/senateme/maine-senate-race/senateme-26"),
+    "KS": ("SENATEKS-26", "https://kalshi.com/markets/senateks/kansas-senate-race/senateks-26"),
     "SC": ("SENATESC-26", "https://kalshi.com/markets/senatesc/south-carolina-senate-race/senatesc-26"),
     "MN": ("SENATEMN-26", "https://kalshi.com/markets/senatemn/minnesota-senate-race/senatemn-26"),
 }
 GAMMA = "https://gamma-api.polymarket.com"
-STATE_NAME = {"TX": "Texas", "OH": "Ohio", "MI": "Michigan", "ME": "Maine", "SC": "South Carolina", "MN": "Minnesota"}
+STATE_NAME = {"TX": "Texas", "OH": "Ohio", "MI": "Michigan", "ME": "Maine", "KS": "Kansas", "SC": "South Carolina", "MN": "Minnesota"}
 POLY_SLUGS = {
     "TX": ["texas-senate-election-winner"],
     "OH": ["ohio-senate-special-election-winner", "ohio-senate-election-winner"],
     "MI": ["michigan-senate-election-winner"],
     "ME": ["maine-senate-election-winner"],
+    "KS": ["kansas-senate-election-winner"],
     "SC": ["south-carolina-senate-election-winner"],
     "MN": ["minnesota-senate-election-winner"],
 }

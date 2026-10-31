@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Senate 2026 Battleground Board</title>
-<meta name="description" content="Prediction markets (Kalshi, Polymarket) and polling averages (RealClearPolitics, PollCheck) for the 2026 U.S. Senate races in Texas, Ohio, Michigan, Maine, South Carolina and Minnesota.">
+<meta name="description" content="Prediction markets (Kalshi, Polymarket) and polling averages (RealClearPolitics, PollCheck) for the 2026 U.S. Senate races in Texas, Ohio, Michigan, Maine, Kansas, South Carolina and Minnesota.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
@@ -192,7 +192,7 @@ window.dash = (() => {
   </header>
 
   <section class="sb-sec" id="races">
-    <h2 class="sb-h2">The six races</h2>
+    <h2 class="sb-h2">The seven races</h2>
     <p class="sb-note">Headline number is the market favorite’s Kalshi win probability. Margins are the Democrat’s lead (+) or deficit. Click a race to focus the poll charts and table below.</p>
     <div class="sb-cards" data-draw="cards" data-source="races avg14">—</div>
   </section>
@@ -609,7 +609,7 @@ dash.draw('moves', (el) => {
 <script>
 dash.draw('statepick', (sel) => {
   const R = dash.data('races');
-  const opts = [new Option('All six races', 'ALL')];
+  const opts = [new Option('All seven races', 'ALL')];
   if (R.status === 'ok') R.data.forEach((r) => opts.push(new Option(r.state + ' — ' + r.dem + ' vs ' + r.rep, r.code)));
   sel.replaceChildren(...opts);
   sel.value = SB.params().state;
