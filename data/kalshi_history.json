@@ -1,0 +1,170 @@
+[
+ {
+  "key": "TX-2026-10-14",
+  "code": "TX",
+  "date": "2026-10-14",
+  "kalshi_dem": 64,
+  "url": "https://defirate.com/odds/senate/"
+ },
+ {
+  "key": "TX-2026-10-21",
+  "code": "TX",
+  "date": "2026-10-21",
+  "kalshi_dem": 64,
+  "url": "https://defirate.com/odds/senate/"
+ },
+ {
+  "key": "TX-2026-10-27",
+  "code": "TX",
+  "date": "2026-10-27",
+  "kalshi_dem": 66,
+  "url": "https://kalshiview.com/markets/midterms-2026/"
+ },
+ {
+  "key": "TX-2026-10-30",
+  "code": "TX",
+  "date": "2026-10-30",
+  "kalshi_dem": 72,
+  "url": "https://www.newsnationnow.com/politics/2026-midterm-elections/odds-battleground-senate-race/"
+ },
+ {
+  "key": "ME-2026-10-14",
+  "code": "ME",
+  "date": "2026-10-14",
+  "kalshi_dem": 58,
+  "url": "https://defirate.com/odds/senate/"
+ },
+ {
+  "key": "ME-2026-10-21",
+  "code": "ME",
+  "date": "2026-10-21",
+  "kalshi_dem": 64,
+  "url": "https://defirate.com/odds/senate/"
+ },
+ {
+  "key": "ME-2026-10-27",
+  "code": "ME",
+  "date": "2026-10-27",
+  "kalshi_dem": 60,
+  "url": "https://kalshiview.com/markets/midterms-2026/"
+ },
+ {
+  "key": "ME-2026-10-30",
+  "code": "ME",
+  "date": "2026-10-30",
+  "kalshi_dem": 67,
+  "url": "https://www.newsnationnow.com/politics/2026-midterm-elections/odds-battleground-senate-race/"
+ },
+ {
+  "key": "OH-2026-10-14",
+  "code": "OH",
+  "date": "2026-10-14",
+  "kalshi_dem": 60,
+  "url": "https://defirate.com/odds/senate/"
+ },
+ {
+  "key": "OH-2026-10-21",
+  "code": "OH",
+  "date": "2026-10-21",
+  "kalshi_dem": 65,
+  "url": "https://defirate.com/odds/senate/"
+ },
+ {
+  "key": "OH-2026-10-27",
+  "code": "OH",
+  "date": "2026-10-27",
+  "kalshi_dem": 68,
+  "url": "https://kalshiview.com/markets/midterms-2026/"
+ },
+ {
+  "key": "OH-2026-10-30",
+  "code": "OH",
+  "date": "2026-10-30",
+  "kalshi_dem": 71,
+  "url": "https://www.newsnationnow.com/politics/2026-midterm-elections/odds-battleground-senate-race/"
+ },
+ {
+  "key": "MI-2026-10-21",
+  "code": "MI",
+  "date": "2026-10-21",
+  "kalshi_dem": 69,
+  "url": "https://defirate.com/odds/senate/"
+ },
+ {
+  "key": "MI-2026-10-27",
+  "code": "MI",
+  "date": "2026-10-27",
+  "kalshi_dem": 68,
+  "url": "https://kalshiview.com/markets/midterms-2026/"
+ },
+ {
+  "key": "MI-2026-10-30",
+  "code": "MI",
+  "date": "2026-10-30",
+  "kalshi_dem": 76,
+  "url": "https://www.newsnationnow.com/politics/2026-midterm-elections/odds-battleground-senate-race/"
+ },
+ {
+  "key": "SC-2026-10-18",
+  "code": "SC",
+  "date": "2026-10-18",
+  "kalshi_dem": 17,
+  "url": "https://predictionmarketspicks.com/midterms-2026/south-carolina-senate"
+ },
+ {
+  "key": "SC-2026-10-29",
+  "code": "SC",
+  "date": "2026-10-29",
+  "kalshi_dem": 28,
+  "url": "https://x.com/KalshiPolitics/status/2115835550816960634"
+ },
+ {
+  "key": "SC-2026-10-31",
+  "code": "SC",
+  "date": "2026-10-31",
+  "kalshi_dem": 28,
+  "url": "https://kalshi.com/markets/senatesc/south-carolina-senate-race/senatesc-26"
+ },
+ {
+  "key": "MN-2026-10-28",
+  "code": "MN",
+  "date": "2026-10-28",
+  "kalshi_dem": 90,
+  "url": "https://www.yahoo.com/news/politics/articles/flanagan-far-ahead-top-rated-163219220.html"
+ },
+ {
+  "key": "TX-2026-10-31",
+  "code": "TX",
+  "date": "2026-10-31",
+  "kalshi_dem": 71,
+  "url": "https://kalshi.com/markets/senatetx/texas-senate-race/senatetx-26"
+ },
+ {
+  "key": "OH-2026-10-31",
+  "code": "OH",
+  "date": "2026-10-31",
+  "kalshi_dem": 70,
+  "url": "https://kalshi.com/markets/senateohs/special-senate-election-in-ohio/senateohs-26"
+ },
+ {
+  "key": "MI-2026-10-31",
+  "code": "MI",
+  "date": "2026-10-31",
+  "kalshi_dem": 76,
+  "url": "https://kalshi.com/markets/senatemi/michigan-senate-race/senatemi-26"
+ },
+ {
+  "key": "ME-2026-10-31",
+  "code": "ME",
+  "date": "2026-10-31",
+  "kalshi_dem": 69,
+  "url": "https://kalshi.com/markets/senateme/maine-senate-race/senateme-26"
+ },
+ {
+  "key": "MN-2026-10-31",
+  "code": "MN",
+  "date": "2026-10-31",
+  "kalshi_dem": 90,
+  "url": "https://kalshi.com/markets/senatemn/minnesota-senate-race/senatemn-26"
+ }
+]

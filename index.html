@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Senate 2026 Battleground Board</title>
+<meta name="description" content="Prediction markets (Kalshi, Polymarket) and polling averages (RealClearPolitics, PollCheck) for the 2026 U.S. Senate races in Texas, Ohio, Michigan, Maine, South Carolina and Minnesota.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root {
+  --font-anthropic-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-anthropic-serif: "Source Serif 4", Georgia, serif;
+  --color-fg: #1f1e1c; --color-fg-muted: #6b6862; --color-bg: #faf9f6; --color-panel: #ffffff;
+  --color-border-line: #e4e1da; --color-ok: #1e7f4f; --color-warn: #a86b00; --color-bad: #c0392b;
+  --cds-font-size-caption: 0.8125rem; --cds-font-size-body: 0.9375rem; --cds-font-size-heading: 1.0625rem; --cds-font-size-title: 2rem;
+  --cds-font-weight-medium: 600;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 14px; --cds-gap-lg: 20px; --cds-gap-xl: 32px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px; --cds-pad-xl: 28px;
+  --cds-radius: 8px; --cds-dur-slow: 300ms;
+  --cds-chart-grid: #ece9e2; --cds-chart-axis: #b9b5ac; --cds-chart-reference: #8f8b82; --cds-chart-muted: #c9c5bc;
+  --cds-surface-popover: #ffffff; --cds-border: #dcd8cf; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.12); --cds-text-secondary: #6b6862;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-fg: #ecebe7; --color-fg-muted: #a29f97; --color-bg: #1b1a18; --color-panel: #24231f;
+    --color-border-line: #3a3833; --color-ok: #5cc98e; --color-warn: #e0a640; --color-bad: #ef6b5d;
+    --cds-chart-grid: #312f2a; --cds-chart-axis: #57544c; --cds-chart-reference: #8a867d; --cds-chart-muted: #4a4741;
+    --cds-surface-popover: #2c2b27; --cds-border: #45423c; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.45); --cds-text-secondary: #a29f97;
+    color-scheme: dark;
+  }
+}
+html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); -webkit-text-size-adjust: 100%; }
+#dash-root { --dash-gutter: clamp(16px, 4vw, 48px); padding: var(--dash-gutter); max-width: 1280px; margin-inline: auto; box-sizing: border-box; }
+#dash-root *, #dash-root *::before, #dash-root *::after { box-sizing: border-box; }
+#dash-root .dash-skeleton { background: linear-gradient(90deg, var(--color-border-line) 25%, var(--color-panel) 50%, var(--color-border-line) 75%); background-size: 200% 100%; border-radius: var(--cds-radius); animation: sbsk 1.4s ease-in-out infinite; }
+@keyframes sbsk { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+#dash-root .sb-foot { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-md); line-height: 1.55; }
+#dash-root .sb-foot a, #dash-root .sb-srcs a { color: var(--color-fg-muted); }
+#dash-root .sb-srcs { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--cds-gap-sm) var(--cds-gap-lg); }
+#dash-root .sb-srcs ul { margin: 4px 0 0; padding-left: 1.1em; }
+#dash-root .sb-srcs b { color: var(--color-fg); }
+</style>
+<script>
+/* Minimal stand-in for the claude.ai Dashboard runtime: loads the JSON files in data/,
+   runs calculations, and redraws every [data-draw] element when data, filters or width change. */
+window.dash = (() => {
+  const files = { races: 'data/races.json', polls: 'data/polls.json', kalshi_history: 'data/kalshi_history.json' };
+  const defaults = { state: 'ALL', lv_only: false, hide_partisan: false };
+  const store = {}; const calcs = {}; const draws = {}; const listeners = [];
+  let params = { ...defaults };
+  Object.keys(files).forEach((id) => { store[id] = { status: 'loading', data: [] }; });
+  const compute = () => {
+    for (const [id, c] of Object.entries(calcs)) {
+      const ins = c.inputs.map((i) => store[i] || { status: 'missing' });
+      if (ins.every((s) => s.status === 'ok')) {
+        try { store[id] = { status: 'ok', data: c.fn(...ins.map((s) => s.data)) }; }
+        catch (e) { console.error(e); store[id] = { status: 'error', data: [], message: String(e) }; }
+      } else store[id] = { status: ins.some((s) => s.status === 'error') ? 'error' : 'loading', data: [] };
+    }
+  };
+  const runDraw = (name) => document.querySelectorAll('[data-draw="' + name + '"]').forEach((el) => {
+    if (el.closest('[hidden]')) return;
+    try { draws[name](el); } catch (e) { console.error(e); }
+  });
+  const render = () => {
+    compute();
+    listeners.forEach((f) => { try { f(); } catch (e) { console.error(e); } });
+    Object.keys(draws).forEach(runDraw);
+  };
+  let raf = 0; const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(render); };
+  const load = async (id, bust) => {
+    const prev = store[id];
+    if (prev.status === 'ok') { prev.refreshing = true; schedule(); }
+    try {
+      const r = await fetch(files[id] + (bust ? '?t=' + Date.now() : ''), { cache: bust ? 'no-store' : 'default' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      store[id] = { status: 'ok', data: await r.json() };
+    } catch (e) { store[id] = prev.status === 'ok' ? { ...prev, refreshing: false } : { status: 'error', data: [], message: String(e) }; }
+    schedule();
+  };
+  let lastW = 0;
+  return {
+    data: (id) => store[id] || { status: 'missing', data: [] },
+    onData: (f) => { listeners.push(f); },
+    draw: (name, fn) => { if (fn) draws[name] = fn; else if (draws[name]) runDraw(name); },
+    calc: (id, o) => { calcs[id] = o; },
+    loader: () => {},
+    colors: ['#0f9d8a', '#e08a1e', '#7b5cd6', '#c2417a', '#5a8f29', '#3a86c8', '#a0673b', '#8a8578'],
+    params: () => ({ ...params }),
+    setParams: (p) => { params = { ...params, ...p }; schedule(); },
+    resetParams: () => { params = { ...defaults }; schedule(); },
+    refresh: (id) => (files[id] ? load(id, true) : Promise.resolve()),
+    setLink: () => {},
+    start: () => {
+      Object.keys(files).forEach((id) => load(id));
+      window.addEventListener('resize', () => { const w = window.innerWidth; if (w !== lastW) { lastW = w; clearTimeout(window.__sbRz); window.__sbRz = setTimeout(schedule, 120); } });
+    },
+  };
+})();
+</script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+#dash-root .sb { --sb-d: #3a6fd8; --sb-r: #d4473d; font-family: var(--font-anthropic-sans); color: var(--color-fg); display: flex; flex-direction: column; gap: var(--cds-gap-xl); }
+#dash-root .sb-head { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+#dash-root .sb-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+#dash-root .sb-take { margin: 0; font-size: var(--cds-font-size-body); color: var(--color-fg-muted); max-width: 60rem; }
+#dash-root .sb-take b, #dash-root .sb-pull b { font-weight: 600; color: var(--color-fg); font-variant-numeric: tabular-nums; }
+#dash-root .sb-pull { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-sm) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dash-root .sb-btn { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-md); border-radius: var(--cds-radius); border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
+#dash-root .sb-btn.sb-primary { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+#dash-root .sb-btn:hover { opacity: .85; }
+#dash-root .sb-sec { display: flex; flex-direction: column; gap: var(--cds-gap-md); }
+#dash-root .sb-h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+#dash-root .sb-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+#dash-root .sb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: var(--cds-gap-md); min-height: 14rem; }
+#dash-root .sb-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); cursor: pointer; transition: border-color .15s; }
+#dash-root .sb-card:hover { border-color: var(--color-fg-muted); }
+#dash-root .sb-card.is-sel { border-color: var(--color-fg); box-shadow: 0 0 0 1px var(--color-fg); }
+#dash-root .sb-ctop { display: flex; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-sm); }
+#dash-root .sb-st { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+#dash-root .sb-seat { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); white-space: nowrap; }
+#dash-root .sb-mu { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dash-root .sb-d { color: var(--sb-d); font-weight: 600; }
+#dash-root .sb-r { color: var(--sb-r); font-weight: 600; }
+#dash-root .sb-big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; font-variant-numeric: tabular-nums; }
+#dash-root .sb-pbar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--color-border-line); }
+#dash-root .sb-pbar span { display: block; height: 100%; }
+#dash-root .sb-kv { display: grid; grid-template-columns: auto 1fr; gap: 2px var(--cds-gap-md); margin: 0; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+#dash-root .sb-kv dt { color: var(--color-fg-muted); }
+#dash-root .sb-kv dd { margin: 0; text-align: right; }
+#dash-root .sb-kv dd small { display: block; color: var(--color-fg-muted); font-size: 0.6875rem; line-height: 1.2; }
+#dash-root .sb-links { display: flex; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); }
+#dash-root .sb-links a, #dash-root .sb-tbl a { color: var(--color-fg-muted); }
+#dash-root .sb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--cds-gap-md); }
+#dash-root .sb-panel { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+#dash-root .sb-chart { position: relative; min-height: 18rem; width: 100%; }
+#dash-root .sb-chart.sb-tall { min-height: 22rem; }
+#dash-root .sb-chart svg { display: block; overflow: visible; }
+#dash-root .sb-chart text { font-family: var(--font-anthropic-sans); font-size: 11px; fill: var(--color-fg-muted); }
+#dash-root .sb-chart .sb-lbl { fill: var(--color-fg); font-size: 12px; }
+#dash-root .sb-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); align-items: center; }
+#dash-root .sb-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; }
+#dash-root .sb-legend .sb-dot { border-radius: 50%; background: var(--color-fg-muted); opacity: .45; }
+#dash-root .sb-legend .sb-dia { transform: rotate(45deg) scale(.85); background: var(--color-fg); }
+#dash-root .sb-legend .sb-sq { border: 2px solid var(--color-fg); background: var(--color-panel); width: 9px; height: 9px; }
+#dash-root .sb-legend .sb-tri { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid var(--color-fg-muted); }
+#dash-root .sb-legend .sb-ln { height: 2px; width: 14px; background: var(--color-fg); }
+#dash-root .sb-tip { position: absolute; display: none; z-index: 5; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); pointer-events: none; white-space: nowrap; color: var(--color-fg); }
+#dash-root .sb-tip .sb-tip-h { color: var(--cds-text-secondary); margin-bottom: 2px; }
+#dash-root .sb-sw { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+#dash-root .sb-ctrls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: center; font-size: var(--cds-font-size-caption); }
+#dash-root .sb-ctrls select, #dash-root .sb-ctrls input[type=search] { font: inherit; padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); }
+#dash-root .sb-ctrls label { display: inline-flex; gap: 4px; align-items: center; color: var(--color-fg-muted); }
+#dash-root .sb-tblwrap { max-height: 32rem; overflow: auto; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+#dash-root .sb-tbl { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+#dash-root .sb-tbl th { position: sticky; top: 0; background: var(--color-panel); text-align: left; border-bottom: 1px solid var(--color-border-line); padding: 0; z-index: 1; }
+#dash-root .sb-tbl th button { font: inherit; font-weight: 600; background: none; border: 0; color: var(--color-fg); padding: var(--cds-pad-sm); cursor: pointer; width: 100%; text-align: inherit; }
+#dash-root .sb-tbl th[aria-sort=ascending] button::after { content: " ▲"; }
+#dash-root .sb-tbl th[aria-sort=descending] button::after { content: " ▼"; }
+#dash-root .sb-tbl td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+#dash-root .sb-tbl .num { text-align: right; }
+#dash-root .sb-tbl tr.is-part td { color: var(--color-fg-muted); }
+@media (max-width: 640px) { #dash-root .sb-tbl .sb-hide-sm { display: none; } }
+#dash-root .sb-method { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.55; max-width: 64rem; }
+#dash-root .sb-method p { margin: 0 0 var(--cds-gap-sm); }
+#dash-root .sb-method b { color: var(--color-fg); }
+#dash-root [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+#dash-root [data-dash-source-state=empty] { color: transparent; }
+#dash-root .sb-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; height: 100%; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+#dash-root .sb-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+</style>
+
+<div class="sb">
+  <header class="sb-head" id="top">
+    <h1 class="sb-title">2026 Senate battlegrounds: markets vs. polls</h1>
+    <p class="sb-take">Kalshi gives the Democrat better-than-even odds in <b data-draw="nfav" data-source="summary" data-field="dem_favored" data-row="0">—</b> of <b data-draw="nraces" data-source="summary" data-field="races" data-row="0">—</b> races here, while no RealClearPolitics average is wider than <b data-draw="widest" data-source="summary" data-field="widest_rcp" data-row="0">—</b> points. Election Day is Tuesday, Nov 3.</p>
+    <div class="sb-pull">
+      <span>Data last pulled <b data-draw="pulled" data-source="races" data-field="pulled_at" data-row="0">—</b></span>
+      <button class="sb-btn sb-primary sb-reload" type="button">Check for new data</button>
+      <span class="sb-reload-msg" hidden>Checked just now.</span>
+    </div>
+    <p class="sb-note">Numbers are gathered by a scheduled research run that re-reads every source and commits fresh data files to this site’s repository. Each card shows the date of every price and average it uses.</p>
+  </header>
+
+  <section class="sb-sec" id="races">
+    <h2 class="sb-h2">The six races</h2>
+    <p class="sb-note">Headline number is the market favorite’s Kalshi win probability. Margins are the Democrat’s lead (+) or deficit. Click a race to focus the poll charts and table below.</p>
+    <div class="sb-cards" data-draw="cards" data-source="races avg14">—</div>
+  </section>
+
+  <section class="sb-sec" id="compare">
+    <h2 class="sb-h2">Where the polls sit</h2>
+    <div class="sb-panel">
+      <h3 class="sb-h2">Every poll from the last 30 days, with three averages</h3>
+      <p class="sb-note">Left of the center line the Republican leads; right of it the Democrat leads. Hover any mark for the pollster and numbers.</p>
+      <div class="sb-legend"><span><i class="sb-dot"></i>Individual poll</span><span><i class="sb-dia"></i>RealClearPolitics avg</span><span><i class="sb-sq"></i>PollCheck avg</span><span><i class="sb-tri"></i>14-day all-polls avg (this board)</span></div>
+      <div class="sb-chart" data-draw="gap" data-source="races avg14 polls"></div>
+    </div>
+  </section>
+
+  <section class="sb-sec" id="markets">
+    <h2 class="sb-h2">What the markets say</h2>
+    <div class="sb-grid">
+      <div class="sb-panel">
+        <h3 class="sb-h2">Democratic win probability by venue</h3>
+        <p class="sb-note">Kalshi and Polymarket prices, read as percent chance. The dashed line is 50%.</p>
+        <div class="sb-legend"><span><i class="sb-sw-k"></i>Kalshi</span><span><i class="sb-sw-p"></i>Polymarket</span></div>
+        <div class="sb-chart" data-draw="probs" data-source="races"></div>
+      </div>
+      <div class="sb-panel">
+        <h3 class="sb-h2">Poll lead vs. market confidence</h3>
+        <p class="sb-note">Each race’s RealClearPolitics margin against its Kalshi price. Far above or below 50% on a small lead means traders expect more than the polls show.</p>
+        <div class="sb-chart" data-draw="scatter" data-source="races"></div>
+      </div>
+    </div>
+    <div class="sb-panel">
+      <h3 class="sb-h2">Kalshi price movement, last three weeks</h3>
+      <p class="sb-note">Democratic win probability at each snapshot this board has recorded; new points are added on every refresh.</p>
+      <div class="sb-chart" data-draw="moves" data-source="kalshi_history"></div>
+    </div>
+  </section>
+
+  <section class="sb-sec" id="polls">
+    <h2 class="sb-h2">All current polling</h2>
+    <div class="sb-ctrls">
+      <select data-draw="statepick" data-source="races" aria-label="Race"></select>
+      <label><input class="sb-lv" type="checkbox"> Likely voters only</label>
+      <label><input class="sb-nopart" type="checkbox"> Hide party-linked pollsters</label>
+      <input class="sb-q" type="search" placeholder="Search pollster" aria-label="Search pollster">
+      <button class="sb-btn sb-reset" type="button">Reset</button>
+    </div>
+    <div class="sb-panel">
+      <h3 class="sb-h2">Poll margins over time</h3>
+      <p class="sb-note">With one race picked, the dashed line is its RealClearPolitics average and the dotted line its PollCheck average.</p>
+      <div class="sb-chart sb-tall" data-draw="timeline" data-source="polls races"></div>
+    </div>
+    <p class="sb-note">Showing <b data-draw="pcount">—</b> polls. Rows in gray come from a pollster with a declared party lean.</p>
+    <div class="sb-tblwrap">
+      <table class="sb-tbl" data-source="polls" data-row-key="id">
+        <thead><tr>
+          <th data-field="code" aria-sort="none"><button class="sb-sort" data-k="code" type="button">Race</button></th>
+          <th data-field="pollster" aria-sort="none"><button class="sb-sort" data-k="pollster" type="button">Pollster</button></th>
+          <th data-field="dates" aria-sort="descending"><button class="sb-sort" data-k="date" type="button">Dates</button></th>
+          <th data-field="population" aria-sort="none" class="sb-hide-sm"><button class="sb-sort" data-k="population" type="button">Pop.</button></th>
+          <th data-field="sample" aria-sort="none" class="sb-hide-sm"><button class="sb-sort" data-k="sample" type="button">Sample</button></th>
+          <th data-field="dem" aria-sort="none" class="num"><button class="sb-sort" data-k="dem" type="button">Dem</button></th>
+          <th data-field="rep" aria-sort="none" class="num"><button class="sb-sort" data-k="rep" type="button">Rep</button></th>
+          <th data-field="margin" aria-sort="none" class="num"><button class="sb-sort" data-k="margin" type="button">Margin</button></th>
+          <th data-field="partisan" aria-sort="none" class="sb-hide-sm"><button class="sb-sort" data-k="partisan" type="button">Lean</button></th>
+        </tr></thead>
+        <tbody data-draw="ptable"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sb-sec sb-method" id="method">
+    <h2 class="sb-h2">How to read this</h2>
+    <p><b>FiveThirtyEight no longer publishes averages.</b> ABC News shut 538 down in March 2025, so its slot here is filled by PollCheck’s weighted average plus this board’s own 14-day all-polls average (a plain mean of every poll on this page that ended or was released in the 14 days up to the newest one). No independent average was found for South Carolina.</p>
+    <p><b>RealClearPolitics</b> is an unweighted mean of recent polls over the window shown on each card. <b>Kalshi and Polymarket</b> are traded prices for the Democrat winning, read as a percent chance; each card shows the date of the price used. Prices are not polls: they reflect traders’ money, and researchers caution they are not a direct read of voter sentiment.</p>
+    <p>Poll margins are Democrat minus Republican. “Party-linked” marks pollsters or sponsors with a declared lean (for example Trafalgar, GQR, Data for Progress). Some polls list only a release date. Every poll in the table links to where it was found.</p>
+    <p><b>Check for new data</b> reloads the data files from this site. New data arrives when the scheduled research run commits it; the button does not run any research itself.</p>
+  </section>
+
+  <section class="sb-sec" id="sources">
+    <h2 class="sb-h2">Sources</h2>
+    <div class="sb-srcs">
+      <div><b>Polling averages</b><ul>
+        <li><a href="https://www.realclearpolling.com/latest-polls/senate" target="_blank" rel="noopener">RealClearPolling — latest Senate polls</a></li>
+        <li><a href="https://www.pollcheck.co.uk/us-midterms-2026" target="_blank" rel="noopener">PollCheck — 2026 midterm averages</a></li>
+      </ul></div>
+      <div><b>Prediction markets</b><ul>
+        <li><a href="https://kalshi.com/category/elections/senate" target="_blank" rel="noopener">Kalshi — Senate markets</a></li>
+        <li><a href="https://polymarket.com/" target="_blank" rel="noopener">Polymarket</a></li>
+      </ul></div>
+      <div><b>Data files</b><ul>
+        <li><a href="data/races.json">races.json</a> — averages and market prices, with source links per value</li>
+        <li><a href="data/polls.json">polls.json</a> — every poll shown, with a source link each</li>
+        <li><a href="data/kalshi_history.json">kalshi_history.json</a> — dated Kalshi snapshots</li>
+      </ul></div>
+    </div>
+    <p class="sb-foot">Independent, non-partisan compilation of publicly reported figures. Not affiliated with RealClearPolitics, PollCheck, Kalshi or Polymarket. Market prices are not forecasts by this site and nothing here is financial advice. Figures can lag the sources; follow the links for the latest.</p>
+  </section>
+</div>
+
+<script>
+window.SB = (() => {
+  const ET = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const DAY = d3.utcFormat('%b %-d');
+  const pd = (s) => new Date(String(s).slice(0, 10) + 'T12:00:00Z');
+  const day = (s) => (s ? DAY(pd(s)) : '—');
+  const stamp = (iso) => (iso ? ET.format(new Date(iso)) + ' ET' : '—');
+  const num = (v) => (v === null || v === undefined || v === '' ? null : Number(v));
+  const lead = (m, d, r) => { m = num(m); if (m === null || isNaN(m)) return '—'; if (Math.abs(m) < 0.05) return 'Tied'; return (m > 0 ? d : r) + ' +' + Math.abs(m).toFixed(1); };
+  const short = (m) => { m = num(m); if (m === null || isNaN(m)) return '—'; if (Math.abs(m) < 0.05) return 'Tie'; return (m > 0 ? 'D+' : 'R+') + (Math.abs(m) % 1 ? Math.abs(m).toFixed(1) : Math.abs(m)); };
+  const D = 'var(--sb-d)', R = 'var(--sb-r)';
+  const party = (m) => (num(m) > 0 ? D : num(m) < 0 ? R : 'var(--color-fg-muted)');
+  const params = () => { const p = dash.params(); return { state: p.state || 'ALL', lv: !!p.lv_only, nop: !!p.hide_partisan }; };
+  const filt = (polls, opts = {}) => { const p = params(); return polls.filter((x) => (opts.ignoreState || p.state === 'ALL' || x.code === p.state) && (!p.lv || x.population === 'LV') && (!p.nop || !x.partisan)); };
+  const notOk = (el, ...gs) => {
+    const bad = gs.find((g) => g.status === 'error' || g.status === 'connect' || g.status === 'declined');
+    if (bad) { const f = document.createElement('div'); f.className = 'sb-fail'; f.textContent = 'Failed to load'; el.replaceChildren(f); return true; }
+    if (gs.some((g) => g.status !== 'ok')) { el.replaceChildren(); el.classList.add('dash-skeleton'); return true; }
+    el.classList.remove('dash-skeleton');
+    return false;
+  };
+  const tip = (host) => {
+    const t = document.createElement('div'); t.className = 'sb-tip'; host.appendChild(t);
+    return {
+      show(ev, lines) {
+        t.replaceChildren(...lines.map((l, i) => { const d = document.createElement('div'); if (i === 0) d.className = 'sb-tip-h'; if (l && l.color) { const s = document.createElement('span'); s.className = 'sb-sw'; s.style.background = l.color; d.append(s); } d.append(document.createTextNode(l && l.text !== undefined ? l.text : l)); return d; }));
+        t.style.display = 'block';
+        const hr = host.getBoundingClientRect(); const tw = t.offsetWidth, th = t.offsetHeight;
+        let x = ev.clientX - hr.left + 12, y = ev.clientY - hr.top + 12;
+        if (x + tw > hr.width) x = Math.max(0, ev.clientX - hr.left - tw - 12);
+        if (y + th > hr.height) y = Math.max(0, ev.clientY - hr.top - th - 12);
+        t.style.left = x + 'px'; t.style.top = y + 'px';
+      },
+      hide() { t.style.display = 'none'; },
+    };
+  };
+  const textW = (svg, strs, cls) => { const g = svg.append('g'); let w = 0; strs.forEach((s) => { const n = g.append('text').attr('class', cls || null).text(s).node(); w = Math.max(w, n.getComputedTextLength()); }); g.remove(); return w; };
+  const axisClean = (g) => g.attr('font-size', null).attr('font-family', null).call((s) => s.select('.domain').remove()).call((s) => s.selectAll('line').style('stroke', 'var(--cds-chart-grid)'));
+  let sort = { k: 'date', dir: -1 };
+  return { pd, day, stamp, num, lead, short, D, R, party, params, filt, notOk, tip, textW, axisClean, get sort() { return sort; }, set sort(v) { sort = v; } };
+})();
+</script>
+
+<script>
+dash.calc('avg14', {
+  inputs: ['polls'],
+  title: '14-day all-polls average',
+  description: 'Plain mean of every poll on this board that ended or was released within 14 days of the newest poll, per race.',
+  fn: (polls) => {
+    const t = Math.max(...polls.map((p) => Date.parse(p.date)));
+    const cut = t - 14 * 86400000;
+    const by = {};
+    polls.filter((p) => Date.parse(p.date) >= cut).forEach((p) => { (by[p.code] = by[p.code] || []).push(p); });
+    return Object.entries(by).map(([code, v]) => {
+      const mean = (f) => Math.round((v.reduce((s, p) => s + Number(p[f]), 0) / v.length) * 10) / 10;
+      return { code, polls: v.length, dem: mean('dem'), rep: mean('rep'), margin: mean('margin') };
+    });
+  },
+});
+dash.calc('summary', {
+  inputs: ['races'],
+  title: 'Board headline counts',
+  description: 'How many races Kalshi prices the Democrat above 50%, out of how many, and the widest RealClearPolitics margin either way.',
+  fn: (races) => [{
+    dem_favored: races.filter((r) => Number(r.kalshi_dem) > 50).length,
+    races: races.length,
+    widest_rcp: Math.max(...races.map((r) => Math.abs(Number(r.rcp_margin)))),
+  }],
+});
+</script>
+
+<script>
+const one = (id, f) => { const g = dash.data(id); return g.status === 'ok' && g.data[0] ? g.data[0][f] : null; };
+dash.draw('nfav', (el) => { const v = one('summary', 'dem_favored'); el.textContent = v === null ? '—' : String(v); });
+dash.draw('nraces', (el) => { const v = one('summary', 'races'); el.textContent = v === null ? '—' : String(v); });
+dash.draw('widest', (el) => { const v = one('summary', 'widest_rcp'); el.textContent = v === null ? '—' : Number(v).toFixed(1); });
+dash.draw('pulled', (el) => { const v = one('races', 'pulled_at'); el.textContent = v ? SB.stamp(v) : '—'; });
+
+document.querySelectorAll('.sb-reload').forEach((b) => b.addEventListener('click', async () => {
+  await Promise.all(['races', 'polls', 'kalshi_history'].map((id) => dash.refresh(id)));
+  document.querySelectorAll('.sb-reload-msg').forEach((m) => { m.hidden = false; });
+}));
+</script>
+
+<script>
+dash.draw('cards', (el) => {
+  const R = dash.data('races'), A = dash.data('avg14');
+  if (SB.notOk(el, R)) return;
+  const avg = new Map((A.status === 'ok' ? A.data : []).map((a) => [a.code, a]));
+  const sel = SB.params().state;
+  el.replaceChildren();
+  R.data.forEach((r) => {
+    const k = SB.num(r.kalshi_dem), p = SB.num(r.poly_dem);
+    const fav = k >= 50 ? { name: r.dem, cls: 'sb-d', v: k } : { name: r.rep, cls: 'sb-r', v: 100 - k };
+    const c = document.createElement('div'); c.className = 'sb-card' + (sel === r.code ? ' is-sel' : ''); c.dataset.code = r.code; c.id = 'race-' + r.code;
+    c.tabIndex = 0; c.setAttribute('role', 'button'); c.setAttribute('aria-pressed', sel === r.code ? 'true' : 'false');
+    const top = document.createElement('div'); top.className = 'sb-ctop';
+    const st = document.createElement('span'); st.className = 'sb-st'; st.textContent = r.state;
+    const seat = document.createElement('span'); seat.className = 'sb-seat';
+    const pm = SB.num(r.pres24);
+    seat.textContent = (r.seat === 'R' ? 'GOP-held' : 'Dem-held') + ' · 2024: ' + (pm > 0 ? 'Harris +' : 'Trump +') + Math.abs(pm).toFixed(1);
+    top.append(st, seat);
+    const mu = document.createElement('div'); mu.className = 'sb-mu';
+    const d = document.createElement('span'); d.className = 'sb-d'; d.textContent = r.dem + ' (D)';
+    const rr = document.createElement('span'); rr.className = 'sb-r'; rr.textContent = r.rep + ' (R)';
+    mu.append(d, document.createTextNode(' vs '), rr);
+    const big = document.createElement('div');
+    const bn = document.createElement('span'); bn.className = 'sb-big ' + fav.cls; bn.textContent = Math.round(fav.v) + '%';
+    const bl = document.createElement('span'); bl.className = 'sb-mu'; bl.textContent = '  ' + fav.name + ' to win · Kalshi, ' + SB.day(r.kalshi_as_of);
+    big.append(bn, bl);
+    const bar = document.createElement('div'); bar.className = 'sb-pbar';
+    const bd = document.createElement('span'); bd.style.width = k + '%'; bd.style.background = SB.D;
+    const br = document.createElement('span'); br.style.width = (100 - k) + '%'; br.style.background = SB.R;
+    bar.append(bd, br);
+    const kv = document.createElement('dl'); kv.className = 'sb-kv';
+    const row = (label, val, note) => { const dt = document.createElement('dt'); dt.textContent = label; const dd = document.createElement('dd'); dd.textContent = val; if (note) { const s = document.createElement('small'); s.textContent = note; dd.append(s); } kv.append(dt, dd); };
+    row('Polymarket', p === null ? '—' : (p >= 50 ? r.dem + ' ' + Math.round(p) : r.rep + ' ' + Math.round(100 - p)) + '%', SB.day(r.poly_as_of));
+    row('RCP average', SB.lead(r.rcp_margin, r.dem, r.rep), r.rcp_window || '');
+    row('PollCheck average', r.ind_margin === null || r.ind_margin === undefined ? 'none found' : SB.lead(r.ind_margin, r.dem, r.rep), r.ind_as_of ? SB.day(r.ind_as_of) : '');
+    const a = avg.get(r.code);
+    row('14-day all polls', a ? SB.lead(a.margin, r.dem, r.rep) : '—', a ? a.polls + (a.polls === 1 ? ' poll' : ' polls') : '');
+    const links = document.createElement('div'); links.className = 'sb-links';
+    [['RCP', r.rcp_url], ['Kalshi', r.kalshi_url], ['Polymarket', r.poly_url], ['PollCheck', r.ind_url]].forEach(([t, u]) => {
+      if (!u || !/^https:\/\//.test(u)) return; const l = document.createElement('a'); l.href = u; l.target = '_blank'; l.rel = 'noopener'; l.textContent = t; l.addEventListener('click', (e) => e.stopPropagation()); links.append(l);
+    });
+    c.append(top, mu, big, bar, kv, links);
+    el.append(c);
+  });
+  el.onclick = (e) => { const c = e.target.closest('.sb-card'); if (!c) return; const cur = SB.params().state; dash.setParams({ state: cur === c.dataset.code ? 'ALL' : c.dataset.code }); };
+  el.onkeydown = (e) => { if (e.key !== 'Enter' && e.key !== ' ') return; const c = e.target.closest('.sb-card'); if (!c) return; e.preventDefault(); c.click(); };
+});
+</script>
+
+<script>
+dash.draw('gap', (el) => {
+  const R = dash.data('races'), P = dash.data('polls'), A = dash.data('avg14');
+  if (SB.notOk(el, R, P)) return;
+  el.replaceChildren();
+  const races = R.data, avg = new Map((A.status === 'ok' ? A.data : []).map((a) => [a.code, a]));
+  const newest = d3.max(P.data, (p) => SB.pd(p.date));
+  const recent = SB.filt(P.data, { ignoreState: true }).filter((p) => newest - SB.pd(p.date) <= 30 * 864e5);
+  const W = Math.max(280, el.clientWidth);
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const narrow = W < 520; const lab = (r) => (narrow ? r.code : r.state);
+  const labW = SB.textW(svg, races.map(lab), 'sb-lbl') + 12;
+  const rowH = 46, m = { t: 22, r: 18, b: 26, l: labW };
+  const H = m.t + m.b + rowH * races.length;
+  svg.attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+  el.style.minHeight = H + 'px';
+  const vals = [0, ...recent.map((p) => +p.margin), ...races.map((r) => +r.rcp_margin), ...races.filter((r) => r.ind_margin != null).map((r) => +r.ind_margin)];
+  const ext = d3.extent(vals); const pad = 1.5;
+  const x = d3.scaleLinear([Math.floor(ext[0] - pad), Math.ceil(ext[1] + pad)], [m.l, W - m.r]);
+  const y = d3.scaleBand(races.map((r) => r.code), [m.t, H - m.b]).padding(0.15);
+  const ticks = x.ticks(Math.max(3, Math.floor((W - m.l) / 70)));
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(ticks).tickFormat((v) => (v === 0 ? '0' : (v > 0 ? 'D+' : 'R+') + Math.abs(v))).tickSize(-(H - m.t - m.b))).call(SB.axisClean);
+  svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', m.t - 8).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)').style('stroke-width', 1.5);
+  svg.append('text').attr('x', x(0) - 6).attr('y', m.t - 10).attr('text-anchor', 'end').text('← Republican leads');
+  svg.append('text').attr('x', x(0) + 6).attr('y', m.t - 10).text('Democrat leads →');
+  const sel = SB.params().state;
+  const tt = SB.tip(el);
+  races.forEach((r) => {
+    const cy = y(r.code) + y.bandwidth() / 2;
+    const g = svg.append('g').style('opacity', sel !== 'ALL' && sel !== r.code ? 0.35 : 1);
+    g.append('text').attr('class', 'sb-lbl').attr('x', 0).attr('y', cy).attr('dy', '0.35em').text(lab(r));
+    g.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', cy).attr('y2', cy).style('stroke', 'var(--cds-chart-grid)');
+    const pts = recent.filter((p) => p.code === r.code);
+    const jit = d3.scalePoint(d3.range(pts.length), [-8, 8]);
+    pts.forEach((p, i) => {
+      g.append('circle').attr('cx', x(+p.margin)).attr('cy', cy + (pts.length > 1 ? jit(i) : 0)).attr('r', 4.5)
+        .style('fill', SB.party(p.margin)).style('fill-opacity', 0.35).style('stroke', SB.party(p.margin)).style('stroke-opacity', 0.6)
+        .on('mousemove', (ev) => tt.show(ev, [r.state + ' · ' + p.dates, { text: p.pollster + (p.partisan ? ' (' + p.partisan + ')' : ''), color: SB.party(p.margin) }, r.dem + ' ' + p.dem + ' – ' + r.rep + ' ' + p.rep + '  (' + SB.short(p.margin) + ')']))
+        .on('mouseleave', () => tt.hide());
+    });
+    const mk = (v, kind, label) => {
+      if (v === null || v === undefined || isNaN(+v)) return;
+      const cx = x(+v);
+      let s;
+      if (kind === 'dia') s = g.append('rect').attr('x', cx - 5).attr('y', cy - 5).attr('width', 10).attr('height', 10).attr('transform', `rotate(45 ${cx} ${cy})`).style('fill', 'var(--color-fg)');
+      else if (kind === 'sq') s = g.append('rect').attr('x', cx - 5).attr('y', cy - 5).attr('width', 10).attr('height', 10).style('fill', 'var(--color-panel)').style('stroke', 'var(--color-fg)').style('stroke-width', 2);
+      else s = g.append('path').attr('d', d3.symbol(d3.symbolTriangle, 90)()).attr('transform', `translate(${cx},${cy})`).style('fill', 'var(--color-fg-muted)').style('stroke', 'var(--color-panel)');
+      s.on('mousemove', (ev) => tt.show(ev, [r.state, label + ': ' + SB.lead(v, r.dem, r.rep)])).on('mouseleave', () => tt.hide());
+    };
+    const a = avg.get(r.code);
+    mk(a ? a.margin : null, 'tri', '14-day all-polls avg' + (a ? ' (' + a.polls + ' polls)' : ''));
+    mk(r.ind_margin, 'sq', 'PollCheck avg, ' + SB.day(r.ind_as_of));
+    mk(r.rcp_margin, 'dia', 'RCP avg, ' + (r.rcp_window || ''));
+  });
+});
+</script>
+
+<script>
+dash.draw('probs', (el) => {
+  const R = dash.data('races');
+  if (SB.notOk(el, R)) return;
+  el.replaceChildren();
+  const races = R.data;
+  const W = Math.max(260, el.clientWidth);
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const labW = SB.textW(svg, races.map((r) => r.code + ' ' + r.dem), 'sb-lbl') + 10;
+  const m = { t: 8, r: 34, b: 24, l: labW }, grpH = 40, H = m.t + m.b + grpH * races.length;
+  svg.attr('viewBox', `0 0 ${W} ${H}`).attr('height', H); el.style.minHeight = H + 'px';
+  const x = d3.scaleLinear([0, 100], [m.l, W - m.r]);
+  const y = d3.scaleBand(races.map((r) => r.code), [m.t, H - m.b]).paddingInner(0.25);
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues([0, 25, 50, 75, 100]).tickFormat((v) => v + '%').tickSize(-(H - m.t - m.b))).call(SB.axisClean);
+  const tt = SB.tip(el);
+  const cols = [dash.colors[0], dash.colors[1]];
+  races.forEach((r) => {
+    const g = svg.append('g');
+    g.append('text').attr('class', 'sb-lbl').attr('x', 0).attr('y', y(r.code) + y.bandwidth() / 2).attr('dy', '0.35em').text(r.code + ' ' + r.dem);
+    const bh = y.bandwidth() / 2 - 1;
+    [['Kalshi', r.kalshi_dem, r.kalshi_as_of], ['Polymarket', r.poly_dem, r.poly_as_of]].forEach(([n, v, at], i) => {
+      if (v === null || v === undefined) return;
+      const yy = y(r.code) + i * (bh + 2);
+      g.append('rect').attr('x', x(0)).attr('y', yy).attr('width', Math.max(1, x(+v) - x(0))).attr('height', bh).attr('rx', 2).style('fill', cols[i])
+        .on('mousemove', (ev) => tt.show(ev, [r.state + ' · ' + n + ', ' + SB.day(at), { text: r.dem + ' (D) ' + Math.round(v) + '%', color: cols[i] }, r.rep + ' (R) ' + Math.round(100 - v) + '%']))
+        .on('mouseleave', () => tt.hide());
+      g.append('text').attr('x', x(+v) + 4).attr('y', yy + bh / 2).attr('dy', '0.35em').text(Math.round(v));
+    });
+  });
+  svg.append('line').attr('x1', x(50)).attr('x2', x(50)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '4 3');
+  document.querySelectorAll('.sb-sw-k').forEach((s) => { s.style.background = cols[0]; s.style.borderRadius = '2px'; });
+  document.querySelectorAll('.sb-sw-p').forEach((s) => { s.style.background = cols[1]; s.style.borderRadius = '2px'; });
+});
+
+dash.draw('scatter', (el) => {
+  const R = dash.data('races');
+  if (SB.notOk(el, R)) return;
+  el.replaceChildren();
+  const races = R.data.filter((r) => r.kalshi_dem != null && r.rcp_margin != null);
+  const W = Math.max(260, el.clientWidth), H = 288, m = { t: 14, r: 22, b: 34, l: 40 };
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+  const ext = d3.extent([0, ...races.map((r) => +r.rcp_margin)]);
+  const x = d3.scaleLinear([Math.floor(ext[0] - 1), Math.ceil(ext[1] + 1)], [m.l + 14, W - m.r]);
+  const y = d3.scaleLinear([0, 100], [H - m.b, m.t]);
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(5).tickFormat((v) => (v === 0 ? '0' : (v > 0 ? 'D+' : 'R+') + Math.abs(v))).tickSize(-(H - m.t - m.b))).call(SB.axisClean);
+  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).tickValues([0, 25, 50, 75, 100]).tickFormat((v) => v + '%').tickSize(-(W - m.l - m.r))).call(SB.axisClean);
+  svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)');
+  svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(50)).attr('y2', y(50)).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '4 3');
+  svg.append('text').attr('x', W - m.r - 4).attr('y', H - m.b - 6).attr('text-anchor', 'end').text('RCP margin →');
+  const tt = SB.tip(el);
+  const labs = [];
+  races.forEach((r) => {
+    const cx = x(+r.rcp_margin), cy = y(+r.kalshi_dem);
+    svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 6).style('fill', SB.party(r.kalshi_dem - 50))
+      .on('mousemove', (ev) => tt.show(ev, [r.state, 'RCP: ' + SB.lead(r.rcp_margin, r.dem, r.rep), 'Kalshi: ' + r.dem + ' ' + Math.round(r.kalshi_dem) + '%']))
+      .on('mouseleave', () => tt.hide());
+    labs.push({ cx, cy, code: r.code });
+  });
+  const boxes = labs.map((l) => ({ x0: l.cx - 7, x1: l.cx + 7, y: l.cy }));
+  labs.sort((p, q) => p.cx - q.cx).forEach((l) => {
+    const tw = 22; const right = { x0: l.cx + 9, x1: l.cx + 9 + tw }; const left = { x0: l.cx - 9 - tw, x1: l.cx - 9 };
+    const hits = (bx) => boxes.some((o) => Math.abs(o.y - l.cy) < 14 && bx.x0 < o.x1 && bx.x1 > o.x0) || (bx.x1 > W - 2);
+    const useLeft = hits(right) && !hits(left);
+    const bx = useLeft ? left : right; boxes.push({ ...bx, y: l.cy });
+    svg.append('text').attr('class', 'sb-lbl').attr('x', useLeft ? l.cx - 9 : l.cx + 9).attr('y', l.cy).attr('dy', '0.35em').attr('text-anchor', useLeft ? 'end' : 'start').text(l.code);
+  });
+});
+</script>
+
+<script>
+dash.draw('moves', (el) => {
+  const K = dash.data('kalshi_history');
+  if (SB.notOk(el, K)) return;
+  el.replaceChildren();
+  const rows = K.data.map((d) => ({ ...d, t: SB.pd(d.date), v: +d.kalshi_dem }));
+  const series = d3.groups(rows, (d) => d.code).map(([code, v]) => ({ code, v: v.sort((a, b) => a.t - b.t) }));
+  const W = Math.max(280, el.clientWidth), H = 288;
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+  const endW = SB.textW(svg, series.map((s) => s.code + ' ' + s.v[s.v.length - 1].v + '%'), 'sb-lbl') + 12;
+  const m = { t: 14, r: endW, b: 26, l: 40 };
+  const tx = d3.extent(rows, (d) => d.t);
+  const x = d3.scaleUtc([d3.utcDay.offset(tx[0], -1), d3.utcDay.offset(tx[1], 1)], [m.l, W - m.r]);
+  const y = d3.scaleLinear([0, 100], [H - m.b, m.t]);
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.max(3, Math.floor((W - m.l - m.r) / 80))).tickFormat(d3.utcFormat('%b %-d')).tickSize(-(H - m.t - m.b))).call(SB.axisClean);
+  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).tickValues([0, 25, 50, 75, 100]).tickFormat((v) => v + '%').tickSize(-(W - m.l - m.r))).call(SB.axisClean);
+  svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(50)).attr('y2', y(50)).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '4 3');
+  const sel = SB.params().state;
+  const line = d3.line().x((d) => x(d.t)).y((d) => y(d.v));
+  const tt = SB.tip(el);
+  const ends = [];
+  series.forEach((s, i) => {
+    const c = dash.colors[i % dash.colors.length];
+    const g = svg.append('g').style('opacity', sel !== 'ALL' && sel !== s.code ? 0.25 : 1);
+    if (s.v.length > 1) g.append('path').attr('d', line(s.v)).style('fill', 'none').style('stroke', c).style('stroke-width', 2).style('stroke-linecap', 'round').style('stroke-linejoin', 'round');
+    s.v.forEach((d) => g.append('circle').attr('cx', x(d.t)).attr('cy', y(d.v)).attr('r', 3.5).style('fill', c)
+      .on('mousemove', (ev) => tt.show(ev, [SB.day(d.date), { text: d.code + ' Democrat ' + d.v + '%', color: c }])).on('mouseleave', () => tt.hide()));
+    const last = s.v[s.v.length - 1];
+    ends.push({ y: y(last.v), x: x(last.t), text: s.code + ' ' + last.v + '%', c, g });
+  });
+  ends.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 13) ends[i].y = ends[i - 1].y + 13;
+  ends.forEach((e) => e.g.append('text').attr('class', 'sb-lbl').attr('x', W - m.r + 8).attr('y', e.y).attr('dy', '0.35em').style('fill', e.c).text(e.text));
+});
+</script>
+
+<script>
+dash.draw('statepick', (sel) => {
+  const R = dash.data('races');
+  const opts = [new Option('All six races', 'ALL')];
+  if (R.status === 'ok') R.data.forEach((r) => opts.push(new Option(r.state + ' — ' + r.dem + ' vs ' + r.rep, r.code)));
+  sel.replaceChildren(...opts);
+  sel.value = SB.params().state;
+  sel.onchange = () => dash.setParams({ state: sel.value });
+});
+document.querySelectorAll('.sb-lv').forEach((c) => c.addEventListener('change', () => dash.setParams({ lv_only: c.checked })));
+document.querySelectorAll('.sb-nopart').forEach((c) => c.addEventListener('change', () => dash.setParams({ hide_partisan: c.checked })));
+document.querySelectorAll('.sb-q').forEach((q) => q.addEventListener('input', () => { dash.draw('ptable'); dash.draw('pcount'); }));
+document.querySelectorAll('.sb-reset').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.sb-q').forEach((q) => { q.value = ''; }); dash.resetParams(); }));
+document.querySelectorAll('.sb-sort').forEach((b) => b.addEventListener('click', () => {
+  const k = b.dataset.k; const s = SB.sort;
+  SB.sort = { k, dir: s.k === k ? -s.dir : (k === 'pollster' || k === 'code' ? 1 : -1) };
+  document.querySelectorAll('.sb-tbl th').forEach((th) => { const bk = th.querySelector('.sb-sort'); th.setAttribute('aria-sort', bk && bk.dataset.k === SB.sort.k ? (SB.sort.dir > 0 ? 'ascending' : 'descending') : 'none'); });
+  dash.draw('ptable');
+}));
+dash.onData(() => {
+  const p = SB.params();
+  document.querySelectorAll('.sb-lv').forEach((c) => { c.checked = p.lv; });
+  document.querySelectorAll('.sb-nopart').forEach((c) => { c.checked = p.nop; });
+});
+
+const sbRows = () => {
+  const P = dash.data('polls');
+  if (P.status !== 'ok') return null;
+  const q = (document.querySelector('.sb-q') || { value: '' }).value.trim().toLowerCase();
+  return SB.filt(P.data).filter((p) => !q || String(p.pollster).toLowerCase().includes(q));
+};
+dash.draw('pcount', (el) => { const r = sbRows(); el.textContent = r ? String(r.length) : '—'; });
+dash.draw('ptable', (tb) => {
+  const rows = sbRows();
+  tb.replaceChildren();
+  if (!rows) return;
+  const { k, dir } = SB.sort;
+  const val = (p) => (k === 'date' ? p.date : p[k] === null || p[k] === undefined ? '' : p[k]);
+  rows.sort((a, b) => { const va = val(a), vb = val(b); const c = typeof va === 'number' && typeof vb === 'number' ? va - vb : String(va).localeCompare(String(vb)); return c * dir || String(b.date).localeCompare(String(a.date)); });
+  rows.forEach((p) => {
+    const tr = document.createElement('tr'); tr.dataset.key = p.id; if (p.partisan) tr.className = 'is-part';
+    const td = (t, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = t; tr.append(c); return c; };
+    td(p.code);
+    const pc = document.createElement('td');
+    if (p.url && /^https:\/\//.test(p.url)) { const a = document.createElement('a'); a.href = p.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = p.pollster; pc.append(a); } else pc.textContent = p.pollster;
+    tr.append(pc);
+    td(p.dates);
+    td(p.population || '—', 'sb-hide-sm');
+    td(p.sample ? d3.format(',')(p.sample) : '—', 'sb-hide-sm');
+    td(String(p.dem), 'num');
+    td(String(p.rep), 'num');
+    const mc = td(SB.short(p.margin), 'num'); mc.style.color = SB.party(p.margin); mc.style.fontWeight = '600';
+    td(p.partisan || '', 'sb-hide-sm');
+    tb.append(tr);
+  });
+});
+
+dash.draw('timeline', (el) => {
+  const P = dash.data('polls'), R = dash.data('races');
+  if (SB.notOk(el, P, R)) return;
+  el.replaceChildren();
+  const sel = SB.params().state;
+  const rows = SB.filt(P.data).map((p) => ({ ...p, t: SB.pd(p.date), m: +p.margin }));
+  const races = new Map(R.data.map((r) => [r.code, r]));
+  const codes = R.data.map((r) => r.code);
+  const W = Math.max(280, el.clientWidth), H = 340, m = { t: 16, r: 74, b: 28, l: 44 };
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+  if (!rows.length) { svg.append('text').attr('x', W / 2).attr('y', H / 2).attr('text-anchor', 'middle').text('No polls match these filters'); return; }
+  const election = SB.pd('2026-11-03');
+  const tx = d3.extent(rows, (d) => d.t);
+  const x = d3.scaleUtc([d3.utcDay.offset(tx[0], -2), election], [m.l + 14, W - m.r]);
+  const ext = d3.extent([0, ...rows.map((d) => d.m)]);
+  const y = d3.scaleLinear([Math.floor(ext[0] - 1), Math.ceil(ext[1] + 1)], [H - m.b, m.t]);
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.max(3, Math.floor((W - m.l - m.r) / 80))).tickFormat(d3.utcFormat('%b %-d')).tickSize(-(H - m.t - m.b))).call(SB.axisClean);
+  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickFormat((v) => (v === 0 ? '0' : (v > 0 ? 'D+' : 'R+') + Math.abs(v))).tickSize(-(W - m.l - m.r))).call(SB.axisClean);
+  svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-reference)').style('stroke-width', 1.5);
+  svg.append('line').attr('x1', x(election)).attr('x2', x(election)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)').style('stroke-dasharray', '2 3');
+  svg.append('text').attr('x', x(election) + 4).attr('y', m.t + 8).text('Nov 3');
+  const color = (p) => (sel === 'ALL' ? dash.colors[codes.indexOf(p.code) % dash.colors.length] : SB.party(p.m));
+  const tt = SB.tip(el);
+  if (sel !== 'ALL' && races.get(sel)) {
+    const r = races.get(sel);
+    const ref = (v, dash_, label) => { if (v === null || v === undefined || isNaN(+v)) return; svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(+v)).attr('y2', y(+v)).style('stroke', 'var(--color-fg)').style('stroke-dasharray', dash_).style('stroke-width', 1.5); svg.append('text').attr('class', 'sb-lbl').attr('x', W - m.r + 4).attr('y', y(+v)).attr('dy', '0.35em').text(label + ' ' + SB.short(v)); };
+    const a = +r.rcp_margin, b = r.ind_margin === null || r.ind_margin === undefined ? null : +r.ind_margin;
+    ref(a, '6 4', 'RCP');
+    if (b !== null) { const off = Math.abs(y(a) - y(b)) < 13; svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(b)).attr('y2', y(b)).style('stroke', 'var(--color-fg)').style('stroke-dasharray', '1 3').style('stroke-width', 2); svg.append('text').attr('class', 'sb-lbl').attr('x', W - m.r + 4).attr('y', y(b) + (off ? (b >= a ? -13 : 13) : 0)).attr('dy', '0.35em').text('PC ' + SB.short(b)); }
+  }
+  rows.sort((a, b) => a.t - b.t).forEach((p) => {
+    const r = races.get(p.code) || { dem: 'Dem', rep: 'Rep', state: p.code };
+    svg.append('circle').attr('cx', x(p.t)).attr('cy', y(p.m)).attr('r', p.partisan ? 4 : 5.5)
+      .style('fill', color(p)).style('fill-opacity', p.partisan ? 0.3 : 0.8).style('stroke', color(p))
+      .on('mousemove', (ev) => tt.show(ev, [r.state + ' · ' + p.dates, { text: p.pollster + (p.population ? ' · ' + p.population : '') + (p.partisan ? ' · ' + p.partisan + ' lean' : ''), color: color(p) }, r.dem + ' ' + p.dem + ' – ' + r.rep + ' ' + p.rep + '  (' + SB.short(p.m) + ')']))
+      .on('mouseleave', () => tt.hide());
+  });
+  if (sel === 'ALL') {
+    const lg = svg.append('g').attr('transform', `translate(${W - m.r + 8},${m.t + 18})`);
+    codes.forEach((c, i) => { lg.append('circle').attr('cx', 4).attr('cy', i * 16).attr('r', 4).style('fill', dash.colors[i % dash.colors.length]); lg.append('text').attr('class', 'sb-lbl').attr('x', 12).attr('y', i * 16).attr('dy', '0.35em').text(c); });
+  }
+});
+</script>
+<script>dash.start();</script>
+</div>
+</body>
+</html>
