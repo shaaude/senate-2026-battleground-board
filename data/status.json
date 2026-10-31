@@ -1,5 +1,25 @@
 {
- "markets_checked_at": null,
- "kalshi": {"updated": [], "errors": {}},
- "polymarket": {"updated": [], "errors": {}}
+ "markets_checked_at": "2026-10-31T09:19:54Z",
+ "kalshi": {
+  "updated": [
+   "TX",
+   "OH",
+   "MI",
+   "ME",
+   "SC",
+   "MN"
+  ],
+  "errors": {}
+ },
+ "polymarket": {
+  "updated": [
+   "TX",
+   "OH",
+   "MI",
+   "ME",
+   "SC",
+   "MN"
+  ],
+  "errors": {}
+ }
 }
