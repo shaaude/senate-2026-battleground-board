@@ -11,7 +11,7 @@ A one-page dashboard comparing **prediction markets** and **polling averages** f
 | South Carolina | Annie Andrews | Darline Graham Nordone (incumbent, appointed) |
 | Minnesota (open, D-held) | Peggy Flanagan | Michele Tafoya |
 
-**Live page:** served by GitHub Pages from this repository's `main` branch (see the repository's *About* panel for the link).
+**Live page:** https://shaaude.github.io/senate-2026-battleground-board/ (GitHub Pages, served from the `main` branch).
 
 ## What's on the page
 
