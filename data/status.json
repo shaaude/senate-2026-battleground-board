@@ -1,11 +1,12 @@
 {
- "markets_checked_at": "2026-10-31T09:19:54Z",
+ "markets_checked_at": "2026-10-31T11:09:27Z",
  "kalshi": {
   "updated": [
    "TX",
    "OH",
    "MI",
    "ME",
+   "KS",
    "SC",
    "MN"
   ],
@@ -17,6 +18,7 @@
    "OH",
    "MI",
    "ME",
+   "KS",
    "SC",
    "MN"
   ],
