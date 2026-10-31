@@ -32,13 +32,16 @@ All figures are in [`data/`](data) as plain JSON, and each value carries a link 
 |---|---|
 | `data/races.json` | One row per race: RCP average (`rcp_dem`, `rcp_rep`, `rcp_margin`, `rcp_window`), PollCheck average (`ind_*`), Kalshi and Polymarket Democratic win price in whole percent (`kalshi_dem`, `poly_dem`) with `*_as_of` dates and `*_url` sources, 2024 presidential margin (`pres24`, + = Harris), and `pulled_at`. |
 | `data/polls.json` | One row per poll: `pollster`, `date` (field end or release), `dates`, `sample`, `population` (LV/RV), `dem`, `rep`, `margin` (Dem − Rep), `partisan` (declared lean of pollster or sponsor), `url`. |
-| `data/kalshi_history.json` | Dated Kalshi Democratic win prices per race. |
+| `data/kalshi_history.json` | Dated Kalshi Democratic win prices per race (hourly from Oct 31). |
+| `data/status.json` | Time of the last automatic price check and any per-venue errors. |
 
 Margins are always Democrat minus Republican. Market prices are traded contract prices read as a percent chance; they are not polls and not a forecast by this site.
 
 ## How the data updates
 
-The numbers are gathered by a scheduled research run that re-reads RealClearPolling, PollCheck, Kalshi, Polymarket and pollster releases, then rewrites the files in `data/`. The page's **Check for new data** button only reloads those files; it does not run any research itself.
+- **Market prices, every 15 minutes:** the GitHub Actions workflow [`.github/workflows/markets.yml`](.github/workflows/markets.yml) runs [`scripts/update_markets.py`](scripts/update_markets.py), which reads Kalshi's and Polymarket's public market-data feeds (no keys), updates `kalshi_*`/`poly_*` in `data/races.json` with the time each price was read, keeps one Kalshi point per race per hour in `data/kalshi_history.json`, and records the check time and any feed errors in `data/status.json`. A feed that can't be read keeps its last price and timestamp. GitHub may start scheduled runs a few minutes late.
+- **Polls and averages:** gathered by a separate research pull (time shown as "Polls and averages pulled").
+- **On the page:** the header shows when market prices were last checked and how long ago; the page re-reads the data files every 5 minutes, and **Check for new data** does so immediately.
 
 ## Running it locally
 

@@ -48,7 +48,7 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
 /* Minimal stand-in for the claude.ai Dashboard runtime: loads the JSON files in data/,
    runs calculations, and redraws every [data-draw] element when data, filters or width change. */
 window.dash = (() => {
-  const files = { races: 'data/races.json', polls: 'data/polls.json', kalshi_history: 'data/kalshi_history.json' };
+  const files = { races: 'data/races.json', polls: 'data/polls.json', kalshi_history: 'data/kalshi_history.json', status: 'data/status.json' };
   const defaults = { state: 'ALL', lv_only: false, hide_partisan: false };
   const store = {}; const calcs = {}; const draws = {}; const listeners = [];
   let params = { ...defaults };
@@ -111,6 +111,8 @@ window.dash = (() => {
 #dash-root .sb-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
 #dash-root .sb-take { margin: 0; font-size: var(--cds-font-size-body); color: var(--color-fg-muted); max-width: 60rem; }
 #dash-root .sb-take b, #dash-root .sb-pull b { font-weight: 600; color: var(--color-fg); font-variant-numeric: tabular-nums; }
+#dash-root .sb-ago { color: var(--color-fg-muted); }
+#dash-root .sb-ago.is-late { color: var(--color-warn); font-weight: 600; }
 #dash-root .sb-pull { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-sm) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 #dash-root .sb-btn { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-md); border-radius: var(--cds-radius); border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
 #dash-root .sb-btn.sb-primary { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
@@ -181,11 +183,12 @@ window.dash = (() => {
     <h1 class="sb-title">2026 Senate battlegrounds: markets vs. polls</h1>
     <p class="sb-take">Kalshi gives the Democrat better-than-even odds in <b data-draw="nfav" data-source="summary" data-field="dem_favored" data-row="0">—</b> of <b data-draw="nraces" data-source="summary" data-field="races" data-row="0">—</b> races here, while no RealClearPolitics average is wider than <b data-draw="widest" data-source="summary" data-field="widest_rcp" data-row="0">—</b> points. Election Day is Tuesday, Nov 3.</p>
     <div class="sb-pull">
-      <span>Data last pulled <b data-draw="pulled" data-source="races" data-field="pulled_at" data-row="0">—</b></span>
+      <span>Market prices checked <b data-draw="mktat" data-source="status races">—</b> <span class="sb-ago" data-draw="mktago" data-source="status races">—</span></span>
+      <span>Polls and averages pulled <b data-draw="pulled" data-source="races" data-field="pulled_at" data-row="0">—</b></span>
       <button class="sb-btn sb-primary sb-reload" type="button">Check for new data</button>
       <span class="sb-reload-msg" hidden>Checked just now.</span>
     </div>
-    <p class="sb-note">Numbers are gathered by a scheduled research run that re-reads every source and commits fresh data files to this site’s repository. Each card shows the date of every price and average it uses.</p>
+    <p class="sb-note">Kalshi and Polymarket prices refresh automatically about every 15 minutes, and this page re-checks for them every 5 minutes. Polls and averages come from a separate research pull. Each card shows when every price and average was taken.</p>
   </header>
 
   <section class="sb-sec" id="races">
@@ -220,8 +223,8 @@ window.dash = (() => {
       </div>
     </div>
     <div class="sb-panel">
-      <h3 class="sb-h2">Kalshi price movement, last three weeks</h3>
-      <p class="sb-note">Democratic win probability at each snapshot this board has recorded; new points are added on every refresh.</p>
+      <h3 class="sb-h2">Kalshi price movement</h3>
+      <p class="sb-note">Democratic win probability at each recorded snapshot. Since Oct 31 a point is kept every hour from the automatic price checks.</p>
       <div class="sb-chart" data-draw="moves" data-source="kalshi_history"></div>
     </div>
   </section>
@@ -264,7 +267,7 @@ window.dash = (() => {
     <p><b>FiveThirtyEight no longer publishes averages.</b> ABC News shut 538 down in March 2025, so its slot here is filled by PollCheck’s weighted average plus this board’s own 14-day all-polls average (a plain mean of every poll on this page that ended or was released in the 14 days up to the newest one). No independent average was found for South Carolina.</p>
     <p><b>RealClearPolitics</b> is an unweighted mean of recent polls over the window shown on each card. <b>Kalshi and Polymarket</b> are traded prices for the Democrat winning, read as a percent chance; each card shows the date of the price used. Prices are not polls: they reflect traders’ money, and researchers caution they are not a direct read of voter sentiment.</p>
     <p>Poll margins are Democrat minus Republican. “Party-linked” marks pollsters or sponsors with a declared lean (for example Trafalgar, GQR, Data for Progress). Some polls list only a release date. Every poll in the table links to where it was found.</p>
-    <p><b>Check for new data</b> reloads the data files from this site. New data arrives when the scheduled research run commits it; the button does not run any research itself.</p>
+    <p><b>Market prices</b> are read every 15 minutes by a GitHub Actions job from Kalshi’s and Polymarket’s public market-data feeds: the Democratic contract’s bid/ask midpoint when the spread is tight, otherwise the last trade, normalized so both candidates sum to 100%. GitHub can start scheduled jobs a few minutes late; if a check is more than 45 minutes old the header says so. A venue that can’t be read keeps its last price and timestamp. <b>Check for new data</b> reloads the files immediately; the page also does this every 5 minutes.</p>
   </section>
 
   <section class="sb-sec" id="sources">
@@ -292,9 +295,11 @@ window.dash = (() => {
 window.SB = (() => {
   const ET = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   const DAY = d3.utcFormat('%b %-d');
-  const pd = (s) => new Date(String(s).slice(0, 10) + 'T12:00:00Z');
+  const pd = (s) => (String(s).length > 10 ? new Date(s) : new Date(String(s).slice(0, 10) + 'T00:00:00Z'));
   const day = (s) => (s ? DAY(pd(s)) : '—');
   const stamp = (iso) => (iso ? ET.format(new Date(iso)) + ' ET' : '—');
+  const when = (s) => (!s ? '—' : String(s).length > 10 ? stamp(s) : day(s));
+  const ago = (iso) => { if (!iso) return ''; const mins = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000)); return mins < 1 ? 'just now' : mins < 60 ? mins + ' min ago' : mins < 1440 ? Math.floor(mins / 60) + ' h ' + (mins % 60) + ' min ago' : Math.floor(mins / 1440) + ' d ago'; };
   const num = (v) => (v === null || v === undefined || v === '' ? null : Number(v));
   const lead = (m, d, r) => { m = num(m); if (m === null || isNaN(m)) return '—'; if (Math.abs(m) < 0.05) return 'Tied'; return (m > 0 ? d : r) + ' +' + Math.abs(m).toFixed(1); };
   const short = (m) => { m = num(m); if (m === null || isNaN(m)) return '—'; if (Math.abs(m) < 0.05) return 'Tie'; return (m > 0 ? 'D+' : 'R+') + (Math.abs(m) % 1 ? Math.abs(m).toFixed(1) : Math.abs(m)); };
@@ -327,7 +332,7 @@ window.SB = (() => {
   const textW = (svg, strs, cls) => { const g = svg.append('g'); let w = 0; strs.forEach((s) => { const n = g.append('text').attr('class', cls || null).text(s).node(); w = Math.max(w, n.getComputedTextLength()); }); g.remove(); return w; };
   const axisClean = (g) => g.attr('font-size', null).attr('font-family', null).call((s) => s.select('.domain').remove()).call((s) => s.selectAll('line').style('stroke', 'var(--cds-chart-grid)'));
   let sort = { k: 'date', dir: -1 };
-  return { pd, day, stamp, num, lead, short, D, R, party, params, filt, notOk, tip, textW, axisClean, get sort() { return sort; }, set sort(v) { sort = v; } };
+  return { pd, day, stamp, when, ago, num, lead, short, D, R, party, params, filt, notOk, tip, textW, axisClean, get sort() { return sort; }, set sort(v) { sort = v; } };
 })();
 </script>
 
@@ -365,9 +370,27 @@ dash.draw('nfav', (el) => { const v = one('summary', 'dem_favored'); el.textCont
 dash.draw('nraces', (el) => { const v = one('summary', 'races'); el.textContent = v === null ? '—' : String(v); });
 dash.draw('widest', (el) => { const v = one('summary', 'widest_rcp'); el.textContent = v === null ? '—' : Number(v).toFixed(1); });
 dash.draw('pulled', (el) => { const v = one('races', 'pulled_at'); el.textContent = v ? SB.stamp(v) : '—'; });
+const mktAt = () => {
+  const st = dash.data('status');
+  if (st.status === 'ok' && st.data && st.data.markets_checked_at) return st.data.markets_checked_at;
+  const R = dash.data('races');
+  if (R.status !== 'ok') return null;
+  const ts = R.data.flatMap((r) => [r.markets_checked_at, r.kalshi_as_of, r.poly_as_of]).filter((t) => t && String(t).length > 10).sort();
+  return ts.length ? ts[ts.length - 1] : null;
+};
+dash.draw('mktat', (el) => { const v = mktAt(); el.textContent = v ? SB.stamp(v) : 'not yet automated'; });
+dash.draw('mktago', (el) => {
+  const v = mktAt();
+  if (!v) { el.textContent = ''; el.classList.remove('is-late'); return; }
+  const late = Date.now() - new Date(v) > 45 * 60000;
+  el.textContent = '(' + SB.ago(v) + (late ? ' · updates delayed' : '') + ')';
+  el.classList.toggle('is-late', late);
+});
+setInterval(() => dash.draw('mktago'), 60000);
+setInterval(() => { ['races', 'kalshi_history', 'status'].forEach((id) => dash.refresh(id)); }, 5 * 60000);
 
 document.querySelectorAll('.sb-reload').forEach((b) => b.addEventListener('click', async () => {
-  await Promise.all(['races', 'polls', 'kalshi_history'].map((id) => dash.refresh(id)));
+  await Promise.all(['races', 'polls', 'kalshi_history', 'status'].map((id) => dash.refresh(id)));
   document.querySelectorAll('.sb-reload-msg').forEach((m) => { m.hidden = false; });
 }));
 </script>
@@ -396,7 +419,7 @@ dash.draw('cards', (el) => {
     mu.append(d, document.createTextNode(' vs '), rr);
     const big = document.createElement('div');
     const bn = document.createElement('span'); bn.className = 'sb-big ' + fav.cls; bn.textContent = Math.round(fav.v) + '%';
-    const bl = document.createElement('span'); bl.className = 'sb-mu'; bl.textContent = '  ' + fav.name + ' to win · Kalshi, ' + SB.day(r.kalshi_as_of);
+    const bl = document.createElement('span'); bl.className = 'sb-mu'; bl.textContent = '  ' + fav.name + ' to win · Kalshi, ' + SB.when(r.kalshi_as_of);
     big.append(bn, bl);
     const bar = document.createElement('div'); bar.className = 'sb-pbar';
     const bd = document.createElement('span'); bd.style.width = k + '%'; bd.style.background = SB.D;
@@ -404,7 +427,7 @@ dash.draw('cards', (el) => {
     bar.append(bd, br);
     const kv = document.createElement('dl'); kv.className = 'sb-kv';
     const row = (label, val, note) => { const dt = document.createElement('dt'); dt.textContent = label; const dd = document.createElement('dd'); dd.textContent = val; if (note) { const s = document.createElement('small'); s.textContent = note; dd.append(s); } kv.append(dt, dd); };
-    row('Polymarket', p === null ? '—' : (p >= 50 ? r.dem + ' ' + Math.round(p) : r.rep + ' ' + Math.round(100 - p)) + '%', SB.day(r.poly_as_of));
+    row('Polymarket', p === null ? '—' : (p >= 50 ? r.dem + ' ' + Math.round(p) : r.rep + ' ' + Math.round(100 - p)) + '%', SB.when(r.poly_as_of));
     row('RCP average', SB.lead(r.rcp_margin, r.dem, r.rep), r.rcp_window || '');
     row('PollCheck average', r.ind_margin === null || r.ind_margin === undefined ? 'none found' : SB.lead(r.ind_margin, r.dem, r.rep), r.ind_as_of ? SB.day(r.ind_as_of) : '');
     const a = avg.get(r.code);
@@ -502,7 +525,7 @@ dash.draw('probs', (el) => {
       if (v === null || v === undefined) return;
       const yy = y(r.code) + i * (bh + 2);
       g.append('rect').attr('x', x(0)).attr('y', yy).attr('width', Math.max(1, x(+v) - x(0))).attr('height', bh).attr('rx', 2).style('fill', cols[i])
-        .on('mousemove', (ev) => tt.show(ev, [r.state + ' · ' + n + ', ' + SB.day(at), { text: r.dem + ' (D) ' + Math.round(v) + '%', color: cols[i] }, r.rep + ' (R) ' + Math.round(100 - v) + '%']))
+        .on('mousemove', (ev) => tt.show(ev, [r.state + ' · ' + n + ', ' + SB.when(at), { text: r.dem + ' (D) ' + Math.round(v) + '%', color: cols[i] }, r.rep + ' (R) ' + Math.round(100 - v) + '%']))
         .on('mouseleave', () => tt.hide());
       g.append('text').attr('x', x(+v) + 4).attr('y', yy + bh / 2).attr('dy', '0.35em').text(Math.round(v));
     });
@@ -573,7 +596,7 @@ dash.draw('moves', (el) => {
     const g = svg.append('g').style('opacity', sel !== 'ALL' && sel !== s.code ? 0.25 : 1);
     if (s.v.length > 1) g.append('path').attr('d', line(s.v)).style('fill', 'none').style('stroke', c).style('stroke-width', 2).style('stroke-linecap', 'round').style('stroke-linejoin', 'round');
     s.v.forEach((d) => g.append('circle').attr('cx', x(d.t)).attr('cy', y(d.v)).attr('r', 3.5).style('fill', c)
-      .on('mousemove', (ev) => tt.show(ev, [SB.day(d.date), { text: d.code + ' Democrat ' + d.v + '%', color: c }])).on('mouseleave', () => tt.hide()));
+      .on('mousemove', (ev) => tt.show(ev, [SB.when(d.date), { text: d.code + ' Democrat ' + d.v + '%', color: c }])).on('mouseleave', () => tt.hide()));
     const last = s.v[s.v.length - 1];
     ends.push({ y: y(last.v), x: x(last.t), text: s.code + ' ' + last.v + '%', c, g });
   });
