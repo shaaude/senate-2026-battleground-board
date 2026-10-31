@@ -1076,5 +1076,33 @@
   "margin": -1,
   "partisan": null,
   "url": "https://www.realclearpolling.com/polls/senate/general/2026/kansas/hamilton-vs-marshall"
+ },
+ {
+  "id": "TX-kstrat-2026-10-30",
+  "code": "TX",
+  "pollster": "KStrat",
+  "date": "2026-10-30",
+  "dates": "Oct 27–30",
+  "sample": 900,
+  "population": "LV",
+  "dem": 48,
+  "rep": 45,
+  "margin": 3,
+  "partisan": null,
+  "url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/texas"
+ },
+ {
+  "id": "SC-patinkin-research-2026-10-29",
+  "code": "SC",
+  "pollster": "Patinkin Research Strategies",
+  "date": "2026-10-29",
+  "dates": "Oct 27–29",
+  "sample": 500,
+  "population": "LV",
+  "dem": 48,
+  "rep": 43,
+  "margin": 5,
+  "partisan": "D",
+  "url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/south-carolina"
  }
 ]

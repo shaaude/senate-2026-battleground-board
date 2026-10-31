@@ -9,10 +9,10 @@
   "rcp_dem": 48.8,
   "rcp_rep": 47.0,
   "rcp_window": "Oct 8–Oct 28",
-  "ind_dem": 48.5,
+  "ind_dem": 48.4,
   "ind_rep": 45.7,
   "ind_src": "PollCheck",
-  "ind_as_of": "2026-10-30",
+  "ind_as_of": "2026-10-31",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/texas",
   "kalshi_dem": 70,
   "kalshi_as_of": "2026-10-31T19:52:02Z",
@@ -22,8 +22,8 @@
   "poly_url": "https://polymarket.com/event/texas-senate-election-winner",
   "rcp_margin": 1.8,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/texas/talarico-vs-paxton",
-  "ind_margin": 2.8,
-  "pulled_at": "2026-10-31T11:13:06Z",
+  "ind_margin": 2.7,
+  "pulled_at": "2026-10-31T19:54:05Z",
   "markets_checked_at": "2026-10-31T19:52:02Z"
  },
  {
@@ -39,7 +39,7 @@
   "ind_dem": 48.2,
   "ind_rep": 44.9,
   "ind_src": "PollCheck",
-  "ind_as_of": "2026-10-30",
+  "ind_as_of": "2026-10-31",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/ohio-special",
   "kalshi_dem": 70,
   "kalshi_as_of": "2026-10-31T19:52:02Z",
@@ -50,7 +50,7 @@
   "rcp_margin": 2.6,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/special-election/2026/ohio/husted-vs-brown",
   "ind_margin": 3.3,
-  "pulled_at": "2026-10-31T11:13:06Z",
+  "pulled_at": "2026-10-31T19:54:05Z",
   "markets_checked_at": "2026-10-31T19:52:02Z"
  },
  {
@@ -64,9 +64,9 @@
   "rcp_rep": 45.6,
   "rcp_window": "Sep 28–Oct 27",
   "ind_dem": 48.6,
-  "ind_rep": 44.5,
+  "ind_rep": 44.6,
   "ind_src": "PollCheck",
-  "ind_as_of": "2026-10-30",
+  "ind_as_of": "2026-10-31",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/michigan",
   "kalshi_dem": 76,
   "kalshi_as_of": "2026-10-31T19:52:02Z",
@@ -76,8 +76,8 @@
   "poly_url": "https://polymarket.com/event/michigan-senate-election-winner",
   "rcp_margin": 3.2,
   "rcp_url": "https://www1.realclearpolitics.com/epolls/2026/senate/tossups.html",
-  "ind_margin": 4.1,
-  "pulled_at": "2026-10-31T11:13:06Z",
+  "ind_margin": 4.0,
+  "pulled_at": "2026-10-31T19:54:05Z",
   "markets_checked_at": "2026-10-31T19:52:02Z"
  },
  {
@@ -93,7 +93,7 @@
   "ind_dem": 48.8,
   "ind_rep": 46.9,
   "ind_src": "PollCheck",
-  "ind_as_of": "2026-10-30",
+  "ind_as_of": "2026-10-31",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/maine",
   "kalshi_dem": 67,
   "kalshi_as_of": "2026-10-31T19:52:02Z",
@@ -104,7 +104,7 @@
   "rcp_margin": 1.4,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/collins-vs-jackson",
   "ind_margin": 1.9,
-  "pulled_at": "2026-10-31T11:13:06Z",
+  "pulled_at": "2026-10-31T19:54:05Z",
   "markets_checked_at": "2026-10-31T19:52:02Z"
  },
  {
@@ -123,7 +123,7 @@
   "ind_rep": 45.3,
   "ind_margin": 2.5,
   "ind_src": "PollCheck",
-  "ind_as_of": "2026-10-30",
+  "ind_as_of": "2026-10-31",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/kansas",
   "kalshi_dem": 50,
   "kalshi_as_of": "2026-10-31T19:52:02Z",
@@ -131,7 +131,7 @@
   "poly_dem": 52,
   "poly_as_of": "2026-10-31T19:52:02Z",
   "poly_url": "https://polymarket.com/event/kansas-senate-election-winner",
-  "pulled_at": "2026-10-31T11:13:06Z",
+  "pulled_at": "2026-10-31T19:54:05Z",
   "markets_checked_at": "2026-10-31T19:52:02Z"
  },
  {
@@ -144,10 +144,10 @@
   "rcp_dem": 45.3,
   "rcp_rep": 48.0,
   "rcp_window": "Sep 28–Oct 18",
-  "ind_dem": 44.9,
-  "ind_rep": 47.1,
+  "ind_dem": 45.2,
+  "ind_rep": 46.7,
   "ind_src": "PollCheck",
-  "ind_as_of": "2026-10-30",
+  "ind_as_of": "2026-10-31",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/south-carolina",
   "kalshi_dem": 28,
   "kalshi_as_of": "2026-10-31T19:52:02Z",
@@ -157,8 +157,8 @@
   "poly_url": "https://polymarket.com/event/south-carolina-senate-election-winner",
   "rcp_margin": -2.7,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/south-carolina/graham-nordone-vs-andrews",
-  "ind_margin": -2.2,
-  "pulled_at": "2026-10-31T11:13:06Z",
+  "ind_margin": -1.5,
+  "pulled_at": "2026-10-31T19:54:05Z",
   "markets_checked_at": "2026-10-31T19:52:02Z"
  },
  {
@@ -185,7 +185,7 @@
   "rcp_margin": 3.4,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/minnesota/tafoya-vs-flanagan",
   "ind_margin": 6.0,
-  "pulled_at": "2026-10-31T11:13:06Z",
+  "pulled_at": "2026-10-31T19:54:05Z",
   "markets_checked_at": "2026-10-31T19:52:02Z"
  }
 ]
