@@ -1104,5 +1104,19 @@
   "margin": 5,
   "partisan": "D",
   "url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/south-carolina"
+ },
+ {
+  "id": "OH-activote-2026-10-31",
+  "code": "OH",
+  "pollster": "ActiVote",
+  "date": "2026-10-31",
+  "dates": "Oct 18–31",
+  "sample": 400,
+  "population": "LV",
+  "dem": 50.2,
+  "rep": 49.8,
+  "margin": 0.4,
+  "partisan": null,
+  "url": "https://www.activote.net/polls/2026/oh-u-s-senate/2026-10-31/"
  }
 ]
