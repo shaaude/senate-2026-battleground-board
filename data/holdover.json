@@ -1,0 +1,352 @@
+[
+ {
+  "code": "AK",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "AL",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "AR",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "AZ",
+  "hold_d": 2,
+  "hold_r": 0,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "CA",
+  "hold_d": 2,
+  "hold_r": 0,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "CO",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "CT",
+  "hold_d": 2,
+  "hold_r": 0,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "DE",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "FL",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "GA",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "HI",
+  "hold_d": 2,
+  "hold_r": 0,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "IA",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "ID",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "IL",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "IN",
+  "hold_d": 0,
+  "hold_r": 2,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "KS",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "KY",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "LA",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "MA",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "MD",
+  "hold_d": 2,
+  "hold_r": 0,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "ME",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "King (I) caucuses with Democrats",
+  "has_race": true
+ },
+ {
+  "code": "MI",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "MN",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "MO",
+  "hold_d": 0,
+  "hold_r": 2,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "MS",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "MT",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "NC",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "ND",
+  "hold_d": 0,
+  "hold_r": 2,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "NE",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "NH",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "NJ",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "NM",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "NV",
+  "hold_d": 2,
+  "hold_r": 0,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "NY",
+  "hold_d": 2,
+  "hold_r": 0,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "OH",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "OK",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "OR",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "PA",
+  "hold_d": 1,
+  "hold_r": 1,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "RI",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "SC",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "SD",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "TN",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "TX",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "UT",
+  "hold_d": 0,
+  "hold_r": 2,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "VA",
+  "hold_d": 1,
+  "hold_r": 0,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "VT",
+  "hold_d": 2,
+  "hold_r": 0,
+  "note": "Sanders (I) caucuses with Democrats",
+  "has_race": false
+ },
+ {
+  "code": "WA",
+  "hold_d": 2,
+  "hold_r": 0,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "WI",
+  "hold_d": 1,
+  "hold_r": 1,
+  "note": "",
+  "has_race": false
+ },
+ {
+  "code": "WV",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ },
+ {
+  "code": "WY",
+  "hold_d": 0,
+  "hold_r": 1,
+  "note": "",
+  "has_race": true
+ }
+]
