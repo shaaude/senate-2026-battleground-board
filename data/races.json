@@ -14,17 +14,17 @@
   "ind_src": "PollCheck",
   "ind_as_of": "2026-11-01",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/texas",
-  "kalshi_dem": 75,
-  "kalshi_as_of": "2026-11-02T16:26:10Z",
+  "kalshi_dem": 72,
+  "kalshi_as_of": "2026-11-02T22:49:40Z",
   "kalshi_url": "https://kalshi.com/markets/senatetx/texas-senate-race/senatetx-26",
-  "poly_dem": 76,
-  "poly_as_of": "2026-11-02T16:26:10Z",
+  "poly_dem": 75,
+  "poly_as_of": "2026-11-02T22:49:40Z",
   "poly_url": "https://polymarket.com/event/texas-senate-election-winner",
   "rcp_margin": 2.5,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/texas/talarico-vs-paxton",
   "ind_margin": 2.8,
   "pulled_at": "2026-11-02T13:53:24Z",
-  "markets_checked_at": "2026-11-02T16:26:10Z"
+  "markets_checked_at": "2026-11-02T22:49:40Z"
  },
  {
   "code": "OH",
@@ -42,16 +42,16 @@
   "ind_as_of": "2026-11-02",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/ohio-special",
   "kalshi_dem": 70,
-  "kalshi_as_of": "2026-11-02T16:26:10Z",
+  "kalshi_as_of": "2026-11-02T22:49:40Z",
   "kalshi_url": "https://kalshi.com/markets/senateohs/special-senate-election-in-ohio/senateohs-26",
   "poly_dem": 72,
-  "poly_as_of": "2026-11-02T16:26:10Z",
+  "poly_as_of": "2026-11-02T22:49:40Z",
   "poly_url": "https://polymarket.com/event/ohio-senate-election-winner",
   "rcp_margin": 2.8,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/special-election/2026/ohio/husted-vs-brown",
   "ind_margin": 2.8,
   "pulled_at": "2026-11-02T13:53:24Z",
-  "markets_checked_at": "2026-11-02T16:26:10Z"
+  "markets_checked_at": "2026-11-02T22:49:40Z"
  },
  {
   "code": "MI",
@@ -69,16 +69,16 @@
   "ind_as_of": "2026-11-01",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/michigan",
   "kalshi_dem": 78,
-  "kalshi_as_of": "2026-11-02T16:26:10Z",
+  "kalshi_as_of": "2026-11-02T22:49:40Z",
   "kalshi_url": "https://kalshi.com/markets/senatemi/michigan-senate-race/senatemi-26",
-  "poly_dem": 80,
-  "poly_as_of": "2026-11-02T16:26:10Z",
+  "poly_dem": 79,
+  "poly_as_of": "2026-11-02T22:49:40Z",
   "poly_url": "https://polymarket.com/event/michigan-senate-election-winner",
   "rcp_margin": 5.3,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/michigan/rogers-vs-el-sayed",
   "ind_margin": 4.1,
   "pulled_at": "2026-11-02T13:53:24Z",
-  "markets_checked_at": "2026-11-02T16:26:10Z"
+  "markets_checked_at": "2026-11-02T22:49:40Z"
  },
  {
   "code": "ME",
@@ -95,17 +95,17 @@
   "ind_src": "PollCheck",
   "ind_as_of": "2026-11-01",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/maine",
-  "kalshi_dem": 72,
-  "kalshi_as_of": "2026-11-02T16:26:10Z",
+  "kalshi_dem": 71,
+  "kalshi_as_of": "2026-11-02T22:49:40Z",
   "kalshi_url": "https://kalshi.com/markets/senateme/maine-senate-race/senateme-26",
-  "poly_dem": 74,
-  "poly_as_of": "2026-11-02T16:26:10Z",
+  "poly_dem": 73,
+  "poly_as_of": "2026-11-02T22:49:40Z",
   "poly_url": "https://polymarket.com/event/maine-senate-election-winner",
   "rcp_margin": 3.3,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/maine/collins-vs-jackson",
   "ind_margin": 2.2,
   "pulled_at": "2026-11-02T13:53:24Z",
-  "markets_checked_at": "2026-11-02T16:26:10Z"
+  "markets_checked_at": "2026-11-02T22:49:40Z"
  },
  {
   "code": "KS",
@@ -126,13 +126,13 @@
   "ind_as_of": "2026-11-01",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/kansas",
   "kalshi_dem": 62,
-  "kalshi_as_of": "2026-11-02T16:26:10Z",
+  "kalshi_as_of": "2026-11-02T22:49:40Z",
   "kalshi_url": "https://kalshi.com/markets/senateks/kansas-senate-race/senateks-26",
   "poly_dem": 62,
-  "poly_as_of": "2026-11-02T16:26:10Z",
+  "poly_as_of": "2026-11-02T22:49:40Z",
   "poly_url": "https://polymarket.com/event/kansas-senate-election-winner",
   "pulled_at": "2026-11-02T13:53:24Z",
-  "markets_checked_at": "2026-11-02T16:26:10Z"
+  "markets_checked_at": "2026-11-02T22:49:40Z"
  },
  {
   "code": "SC",
@@ -150,16 +150,16 @@
   "ind_as_of": "2026-11-01",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/south-carolina",
   "kalshi_dem": 32,
-  "kalshi_as_of": "2026-11-02T16:26:10Z",
+  "kalshi_as_of": "2026-11-02T22:49:40Z",
   "kalshi_url": "https://kalshi.com/markets/senatesc/south-carolina-senate-race/senatesc-26",
   "poly_dem": 32,
-  "poly_as_of": "2026-11-02T16:26:10Z",
+  "poly_as_of": "2026-11-02T22:49:40Z",
   "poly_url": "https://polymarket.com/event/south-carolina-senate-election-winner",
   "rcp_margin": -2.7,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/south-carolina/graham-nordone-vs-andrews",
   "ind_margin": -1.5,
   "pulled_at": "2026-11-02T13:53:24Z",
-  "markets_checked_at": "2026-11-02T16:26:10Z"
+  "markets_checked_at": "2026-11-02T22:49:40Z"
  },
  {
   "code": "MN",
@@ -177,15 +177,15 @@
   "ind_as_of": "2026-11-01",
   "ind_url": "https://www.pollcheck.co.uk/us-midterms-2026/senate/minnesota",
   "kalshi_dem": 92,
-  "kalshi_as_of": "2026-11-02T16:26:10Z",
+  "kalshi_as_of": "2026-11-02T22:49:40Z",
   "kalshi_url": "https://kalshi.com/markets/senatemn/minnesota-senate-race/senatemn-26",
-  "poly_dem": 94,
-  "poly_as_of": "2026-11-02T16:26:10Z",
+  "poly_dem": 93,
+  "poly_as_of": "2026-11-02T22:49:40Z",
   "poly_url": "https://polymarket.com/event/minnesota-senate-election-winner",
   "rcp_margin": 3.4,
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/minnesota/tafoya-vs-flanagan",
   "ind_margin": 6.2,
   "pulled_at": "2026-11-02T13:53:24Z",
-  "markets_checked_at": "2026-11-02T16:26:10Z"
+  "markets_checked_at": "2026-11-02T22:49:40Z"
  }
 ]
