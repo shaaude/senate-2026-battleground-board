@@ -48,8 +48,8 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
 /* Minimal stand-in for the claude.ai Dashboard runtime: loads the JSON files in data/,
    runs calculations, and redraws every [data-draw] element when data, filters or width change. */
 window.dash = (() => {
-  const files = { races: 'data/races.json', polls: 'data/polls.json', kalshi_history: 'data/kalshi_history.json', status: 'data/status.json' };
-  const defaults = { state: 'ALL', lv_only: false, hide_partisan: false };
+  const files = { races: 'data/races.json', polls: 'data/polls.json', kalshi_history: 'data/kalshi_history.json', status: 'data/status.json', all_races: 'data/all_races.json', holdover: 'data/holdover.json', forecasts: 'data/forecasts.json', control: 'data/control.json', state_shapes: 'data/state_shapes.json' };
+  const defaults = { state: 'ALL', lv_only: false, hide_partisan: false, map_mode: 'markets', map_state: null };
   const store = {}; const calcs = {}; const draws = {}; const listeners = [];
   let params = { ...defaults };
   Object.keys(files).forEach((id) => { store[id] = { status: 'loading', data: [] }; });
@@ -102,6 +102,54 @@ window.dash = (() => {
   };
 })();
 </script>
+<style>
+#dash-root .sbc { --c-sd: #1f4fa8; --c-ld: #4f7fd6; --c-wd: #9db8ec; --c-tu: #cfc08a; --c-wr: #f0a59f; --c-lr: #dd6157; --c-sr: #b02a22; --c-si: #7b4fc9; --c-none: var(--color-border-line); display: flex; flex-direction: column; gap: var(--cds-gap-md); }
+@media (prefers-color-scheme: dark) { #dash-root .sbc { --c-sd: #5b8cf0; --c-ld: #3d68c4; --c-wd: #2c4677; --c-tu: #7a6d3e; --c-wr: #7a3a35; --c-lr: #b5463d; --c-sr: #e06357; --c-si: #a17ff0; } }
+#dash-root .sbc-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: var(--cds-gap-md); }
+#dash-root .sbc-kpi { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: flex; flex-direction: column; gap: 2px; }
+#dash-root .sbc-kpi-l { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dash-root .sbc-kpi-v { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); line-height: 1.15; font-variant-numeric: tabular-nums; }
+#dash-root .sbc-kpi-n { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dash-root .sbc-bar { position: relative; min-height: 5.5rem; }
+#dash-root .sbc-mapwrap { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(16rem, 1fr); gap: var(--cds-gap-md); align-items: start; }
+@media (max-width: 860px) { #dash-root .sbc-mapwrap { grid-template-columns: 1fr; } }
+#dash-root .sbc-map { position: relative; min-height: 16rem; }
+#dash-root .sbc-map svg { display: block; }
+#dash-root .sbc-map path.st { stroke: var(--color-panel); stroke-width: 1; cursor: pointer; transition: opacity .15s; }
+#dash-root .sbc-map path.st.norace { cursor: default; }
+#dash-root .sbc-map path.st.sel, #dash-root .sbc-map rect.sq.sel { stroke: var(--color-fg); stroke-width: 2.5; }
+#dash-root .sbc-map text { font-family: var(--font-anthropic-sans); font-size: 11px; pointer-events: none; }
+#dash-root .sbc-map rect.sq { cursor: pointer; stroke: var(--color-panel); }
+#dash-root .sbc-legend { display: flex; flex-wrap: wrap; gap: 4px var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); align-items: center; }
+#dash-root .sbc-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 4px; vertical-align: -2px; }
+#dash-root .sbc-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+#dash-root .sbc-seg button { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-md); background: var(--color-panel); color: var(--color-fg-muted); border: 0; cursor: pointer; }
+#dash-root .sbc-seg button[aria-pressed=true] { background: var(--color-fg); color: var(--color-bg); }
+#dash-root .sbc-detail { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-height: 16rem; }
+#dash-root .sbc-dt { font-size: var(--cds-font-size-heading); font-weight: 600; margin: 0; }
+#dash-root .sbc-dm { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+#dash-root .sbc-rating { display: inline-block; font-size: var(--cds-font-size-caption); font-weight: 600; padding: 2px 8px; border-radius: 999px; color: #fff; }
+#dash-root .sbc-prow { display: grid; grid-template-columns: 6.5rem 1fr 3rem; gap: 6px; align-items: center; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+#dash-root .sbc-pbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--color-border-line); }
+#dash-root .sbc-pbar span { display: block; height: 100%; }
+#dash-root .sbc-kv { display: grid; grid-template-columns: auto 1fr; gap: 3px var(--cds-gap-md); font-size: var(--cds-font-size-caption); margin: 0; }
+#dash-root .sbc-kv dt { color: var(--color-fg-muted); }
+#dash-root .sbc-kv dd { margin: 0; text-align: right; }
+#dash-root .sbc-links { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); }
+#dash-root .sbc-links a { color: var(--color-fg-muted); }
+#dash-root .sbc-fc { min-height: 12rem; position: relative; }
+#dash-root .sbc-tbl { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+#dash-root .sbc-tbl th { text-align: left; font-weight: 600; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); position: sticky; top: 0; background: var(--color-panel); }
+#dash-root .sbc-tbl td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); }
+#dash-root .sbc-tbl .num { text-align: right; }
+#dash-root .sbc-tbl tr.sbc-cons td { font-weight: 600; background: var(--color-bg); }
+#dash-root .sbc-tbl tbody tr.sbc-click { cursor: pointer; }
+#dash-root .sbc-tbl tbody tr.sbc-click:hover td { background: var(--color-bg); }
+#dash-root .sbc-tbl tbody tr.is-sel td { background: var(--color-bg); font-weight: 600; }
+#dash-root .sbc-tbl a { color: var(--color-fg-muted); }
+#dash-root .sbc-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+@media (max-width: 640px) { #dash-root .sbc-hide-sm { display: none; } }
+</style>
 </head>
 <body>
 <div id="dash-root">
@@ -190,6 +238,58 @@ window.dash = (() => {
     </div>
     <p class="sb-note">Kalshi and Polymarket prices refresh automatically about every 15 minutes, and this page re-checks for them every 5 minutes. Polls and averages come from a separate research pull. Each card shows when every price and average was taken.</p>
   </header>
+
+  <section class="sb-sec sbc" id="control">
+    <h2 class="sb-h2">Who controls the Senate</h2>
+    <p class="sb-note">Republicans hold 53 seats to Democrats’ 47 (including two independents who caucus with them). 35 seats are up; Democrats need 51 for control, since a 50–50 Senate is broken by the Republican vice president.</p>
+    <div class="sbc-kpis">
+      <div class="sbc-kpi"><span class="sbc-kpi-l">Forecaster consensus, Democratic seats</span><span class="sbc-kpi-v" data-draw="c_seats" data-source="consensus" data-field="dem_seats" data-row="0">—</span><span class="sbc-kpi-n" data-draw="c_seats_n">—</span></div>
+      <div class="sbc-kpi"><span class="sbc-kpi-l">Average chance of Democratic control</span><span class="sbc-kpi-v" data-draw="c_ctrl" data-source="consensus" data-field="p_dem" data-row="0">—</span><span class="sbc-kpi-n" data-draw="c_ctrl_n">—</span></div>
+      <div class="sbc-kpi"><span class="sbc-kpi-l">Seats implied by race-by-race market prices</span><span class="sbc-kpi-v" data-draw="c_impl" data-source="implied" data-field="dem" data-row="0">—</span><span class="sbc-kpi-n" data-draw="c_impl_n">—</span></div>
+    </div>
+  
+    <div class="sb-panel">
+      <h3 class="sb-h2">Projected Senate, all 100 seats</h3>
+      <p class="sb-note">Seats not up this year, then each 2026 race placed by its average Kalshi/Polymarket price (Decision Desk HQ’s model where no market price is available). The line marks 51.</p>
+      <div class="sbc-bar" data-draw="c_bar" data-source="all_races holdover"></div>
+    </div>
+  
+    <div class="sb-panel">
+      <h3 class="sb-h2">Individual forecasts and the consensus</h3>
+      <p class="sb-note">Filled dots are point estimates; bars are ranges (ratings outlets give a range once toss-ups are split either way); a hollow dot is a floor (Polymarket’s market puts 54% on Republicans holding 47 or fewer). The consensus is the median of point estimates. Silver Bulletin and The Economist publish control odds only in the sources reachable here.</p>
+      <div class="sbc-fc" data-draw="c_fcchart" data-source="forecasts control consensus"></div>
+      <div class="sb-tblwrap" style="max-height:none">
+        <table class="sbc-tbl" data-source="forecasts control consensus">
+          <thead><tr><th>Forecaster</th><th class="sbc-hide-sm">Type</th><th class="num">Dem seats</th><th class="num">GOP seats</th><th class="num sbc-hide-sm">Toss-ups</th><th class="num">Dem control</th><th>As of</th></tr></thead>
+          <tbody data-draw="c_fctable"></tbody>
+        </table>
+      </div>
+    </div>
+  
+    <div class="sb-panel">
+      <h3 class="sb-h2">Every state</h3>
+      <div class="sb-ctrls">
+        <span class="sbc-kpi-l">Color by</span>
+        <div class="sbc-seg" role="group" aria-label="Color the map by">
+          <button type="button" class="sbc-mode" data-mode="markets" aria-pressed="true">Markets</button>
+          <button type="button" class="sbc-mode" data-mode="ddhq" aria-pressed="false">DDHQ model</button>
+          <button type="button" class="sbc-mode" data-mode="polls" aria-pressed="false">Poll margin</button>
+        </div>
+      </div>
+      <div class="sbc-legend" data-draw="c_legend"></div>
+      <div class="sbc-mapwrap">
+        <div class="sbc-map" data-draw="c_map" data-source="all_races state_shapes holdover"></div>
+        <div class="sbc-detail" data-draw="c_detail" data-source="all_races holdover"></div>
+      </div>
+      <p class="sb-note">Click a state, or a row below, for its race. Gray states have no Senate race this year. Polling margins are Poliwave’s averages through Nov 1; independents (Nebraska, Idaho, South Dakota, Montana) are shown in purple.</p>
+      <div class="sb-tblwrap">
+        <table class="sbc-tbl" data-source="all_races">
+          <thead><tr><th>State</th><th>Challenger / Dem</th><th>Republican</th><th class="sbc-hide-sm">Held</th><th class="num">Markets</th><th class="num sbc-hide-sm">Kalshi</th><th class="num sbc-hide-sm">Polymarket</th><th class="num sbc-hide-sm">DDHQ</th><th class="num">Polls</th></tr></thead>
+          <tbody data-draw="c_races"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 
   <section class="sb-sec" id="races">
     <h2 class="sb-h2">The seven races</h2>
@@ -387,10 +487,10 @@ dash.draw('mktago', (el) => {
   el.classList.toggle('is-late', late);
 });
 setInterval(() => dash.draw('mktago'), 60000);
-setInterval(() => { ['races', 'kalshi_history', 'status'].forEach((id) => dash.refresh(id)); }, 5 * 60000);
+setInterval(() => { ['races', 'kalshi_history', 'status', 'all_races', 'control'].forEach((id) => dash.refresh(id)); }, 5 * 60000);
 
 document.querySelectorAll('.sb-reload').forEach((b) => b.addEventListener('click', async () => {
-  await Promise.all(['races', 'polls', 'kalshi_history', 'status'].map((id) => dash.refresh(id)));
+  await Promise.all(['races', 'polls', 'kalshi_history', 'status', 'all_races', 'control', 'forecasts'].map((id) => dash.refresh(id)));
   document.querySelectorAll('.sb-reload-msg').forEach((m) => { m.hidden = false; });
 }));
 </script>
@@ -704,6 +804,349 @@ dash.draw('timeline', (el) => {
     const lg = svg.append('g').attr('transform', `translate(${W - m.r + 8},${m.t + 18})`);
     codes.forEach((c, i) => { lg.append('circle').attr('cx', 4).attr('cy', i * 16).attr('r', 4).style('fill', dash.colors[i % dash.colors.length]); lg.append('text').attr('class', 'sb-lbl').attr('x', 12).attr('y', i * 16).attr('dy', '0.35em').text(c); });
   }
+});
+</script>
+<script>
+window.SBC = (() => {
+  const num = (v) => (v === null || v === undefined || v === '' || isNaN(+v) ? null : +v);
+  const avg = (a) => { const v = a.map(num).filter((x) => x !== null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
+  // Probability (0-100) that the non-Republican candidate wins, by source
+  const opp = (r, mode) => {
+    if (mode === 'ddhq') return num(r.ddhq_opp);
+    const k = num(r.kalshi_r) !== null ? 100 - num(r.kalshi_r) : null;
+    const p = num(r.poly_r) !== null ? 100 - num(r.poly_r) : null;
+    const m = avg([k, p]);
+    return m !== null ? m : num(r.ddhq_opp);
+  };
+  const BINS = [
+    { min: 95, key: 'sd', label: 'Safe' }, { min: 80, key: 'ld', label: 'Likely' }, { min: 60, key: 'wd', label: 'Lean' },
+    { min: 40, key: 'tu', label: 'Toss-up' }, { min: 20, key: 'wr', label: 'Lean R' }, { min: 5, key: 'lr', label: 'Likely R' }, { min: -1, key: 'sr', label: 'Safe R' },
+  ];
+  const bin = (p) => BINS.find((b) => p >= b.min);
+  const PBINS = [ // poll margin bins, + = non-GOP lead
+    { min: 15, key: 'sd' }, { min: 5, key: 'ld' }, { min: 2, key: 'wd' }, { min: -2, key: 'tu' }, { min: -5, key: 'wr' }, { min: -15, key: 'lr' }, { min: -999, key: 'sr' },
+  ];
+  const fillFor = (r, mode) => {
+    if (!r) return 'var(--c-none)';
+    if (mode === 'polls') {
+      const m = num(r.poll_margin);
+      if (m === null) return 'var(--c-none)';
+      const k = PBINS.find((b) => m >= b.min).key;
+      return r.opp_party === 'I' && m > 2 ? 'var(--c-si)' : 'var(--c-' + k + ')';
+    }
+    const p = opp(r, mode);
+    if (p === null) return 'var(--c-none)';
+    const k = bin(p).key;
+    return r.opp_party === 'I' && p >= 60 ? 'var(--c-si)' : 'var(--c-' + k + ')';
+  };
+  const ratingLabel = (r, p) => {
+    const b = bin(p);
+    if (b.key === 'tu') return 'Toss-up';
+    if (b.key.endsWith('r')) return b.label;
+    return b.label + ' ' + (r.opp_party === 'I' ? 'I' : 'D');
+  };
+  const mode = () => dash.params().map_mode || 'markets';
+  const pct = (v) => (v === null ? '—' : v < 1 && v > 0 ? '<1%' : v > 99 && v < 100 ? '>99%' : Math.round(v) + '%');
+  const marg = (m) => (m === null ? '—' : Math.abs(m) < 0.05 ? 'Tie' : (m > 0 ? '+' : 'R+') + Math.abs(m).toFixed(1));
+  const when = (s) => (!s ? '' : String(s).length > 10 ? SB.stamp(s) : SB.day(s));
+  const cand = (r) => r.d_name ? r.d_name + ' (D)' + (r.i_name ? ' · ' + r.i_name + ' (I)' : '') : (r.i_name || '—') + ' (I)';
+  return { num, avg, opp, bin, fillFor, ratingLabel, mode, pct, marg, when, cand };
+})();
+
+dash.calc('implied', {
+  inputs: ['all_races', 'holdover'],
+  title: 'Seats implied by race prices',
+  description: 'Seats not up in 2026 plus, for each race, the average Kalshi/Polymarket win share by party (DDHQ model where no market price exists).',
+  fn: (all_races, holdover) => {
+    const n = (v) => (v === null || v === undefined || v === '' ? null : +v);
+    let d = holdover.reduce((s, h) => s + h.hold_d, 0), r = holdover.reduce((s, h) => s + h.hold_r, 0), i = 0;
+    all_races.forEach((x) => {
+      const src = [['kalshi_d', 'kalshi_r', 'kalshi_i'], ['poly_d', 'poly_r', 'poly_i']].filter((k) => n(x[k[1]]) !== null);
+      if (src.length) {
+        const sd = src.reduce((s, k) => s + (n(x[k[0]]) || 0), 0) / src.length / 100;
+        const sr = src.reduce((s, k) => s + n(x[k[1]]), 0) / src.length / 100;
+        const si = src.reduce((s, k) => s + (n(x[k[2]]) || 0), 0) / src.length / 100;
+        const t = sd + sr + si || 1;
+        d += sd / t; r += sr / t; i += si / t;
+      } else {
+        const o = n(x.ddhq_opp) / 100;
+        r += 1 - o;
+        if (x.opp_party === 'I') i += o; else d += o;
+      }
+    });
+    return [{ dem: Math.round(d * 10) / 10, rep: Math.round(r * 10) / 10, ind: Math.round(i * 10) / 10 }];
+  },
+});
+
+dash.calc('consensus', {
+  inputs: ['forecasts', 'control'],
+  title: 'Forecaster consensus',
+  description: 'Median of published Democratic seat point estimates, and the mean chance of Democratic control across models and the two control markets.',
+  fn: (forecasts, control) => {
+    const c = Array.isArray(control) ? control[0] : control;
+    const live = { kalshi: c && c.kalshi_d, polymarket: c && c.poly_d };
+    const seats = forecasts.map((f) => f.dem_seats).filter((v) => v !== null && v !== undefined).map(Number).sort((a, b) => a - b);
+    const mid = seats.length ? (seats.length % 2 ? seats[(seats.length - 1) / 2] : (seats[seats.length / 2 - 1] + seats[seats.length / 2]) / 2) : null;
+    const probs = forecasts.map((f) => (live[f.id] !== undefined && live[f.id] !== null ? Number(live[f.id]) : f.p_dem)).filter((v) => v !== null && v !== undefined).map(Number);
+    const p = probs.length ? probs.reduce((s, x) => s + x, 0) / probs.length : null;
+    return [{ dem_seats: mid, n_seats: seats.length, p_dem: p === null ? null : Math.round(p * 10) / 10, n_probs: probs.length }];
+  },
+});
+</script>
+
+<script>
+const sbcOne = (id, f) => { const g = dash.data(id); return g.status === 'ok' && g.data && g.data[0] ? g.data[0][f] : null; };
+dash.draw('c_seats', (el) => { const v = sbcOne('consensus', 'dem_seats'); el.textContent = v === null ? '—' : String(v); });
+dash.draw('c_seats_n', (el) => { const n = sbcOne('consensus', 'n_seats'); el.textContent = n ? 'median of ' + n + ' published point estimates' : '—'; });
+dash.draw('c_ctrl', (el) => { const v = sbcOne('consensus', 'p_dem'); el.textContent = v === null ? '—' : Math.round(v) + '%'; });
+dash.draw('c_ctrl_n', (el) => { const n = sbcOne('consensus', 'n_probs'); el.textContent = n ? 'mean of ' + n + ' models and markets' : '—'; });
+dash.draw('c_impl', (el) => { const v = sbcOne('implied', 'dem'); el.textContent = v === null ? '—' : v.toFixed(1); });
+dash.draw('c_impl_n', (el) => {
+  const r = sbcOne('implied', 'rep'), i = sbcOne('implied', 'ind');
+  el.textContent = r === null ? '—' : 'Democrats · Republicans ' + r.toFixed(1) + (i >= 0.1 ? ' · independents ' + i.toFixed(1) : '');
+});
+
+dash.draw('c_bar', (el) => {
+  const A = dash.data('all_races'), H = dash.data('holdover');
+  if (SB.notOk(el, A, H)) return;
+  el.replaceChildren();
+  const hd = H.data.reduce((s, h) => s + h.hold_d, 0), hr = H.data.reduce((s, h) => s + h.hold_r, 0);
+  const races = A.data.map((r) => ({ r, p: SBC.opp(r, 'markets') })).filter((x) => x.p !== null).sort((a, b) => b.p - a.p);
+  const order = [];
+  for (let i = 0; i < hd; i++) order.push({ fill: 'var(--c-sd)', tip: ['Not up in 2026', 'Democratic seat'], hold: 1 });
+  races.forEach(({ r, p }) => order.push({ fill: SBC.fillFor(r, 'markets'), tip: [r.state, SBC.cand(r).replace(/ \(.\)/g, '') + ' ' + SBC.pct(p) + ' · ' + r.r_name + ' ' + SBC.pct(100 - p)], code: r.code }));
+  for (let i = 0; i < hr; i++) order.push({ fill: 'var(--c-sr)', tip: ['Not up in 2026', 'Republican seat'], hold: 1 });
+  const W = Math.max(280, el.clientWidth), m = { l: 2, r: 2 }, bh = 30, top = 26, H2 = 82;
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H2}`).attr('height', H2);
+  const x = d3.scaleLinear([0, 100], [m.l, W - m.r]);
+  const tt = SB.tip(el);
+  order.forEach((s, i) => {
+    svg.append('rect').attr('x', x(i) + 0.5).attr('y', s.hold ? top + 7 : top).attr('width', Math.max(1, x(i + 1) - x(i) - 1)).attr('height', s.hold ? bh - 14 : bh)
+      .style('fill', s.fill).style('cursor', s.code ? 'pointer' : 'default')
+      .on('mousemove', (ev) => tt.show(ev, s.tip)).on('mouseleave', () => tt.hide())
+      .on('click', () => { if (s.code) { dash.setParams({ map_state: s.code }); const t = document.getElementById('control'); } });
+  });
+  svg.append('line').attr('x1', x(51) - 0.5).attr('x2', x(51) - 0.5).attr('y1', top - 6).attr('y2', top + bh + 6).style('stroke', 'var(--color-fg)').style('stroke-width', 2);
+  const narrow = W < 560;
+  svg.append('text').attr('x', x(51)).attr('y', top - 10).attr('text-anchor', 'middle').attr('class', 'sb-lbl').text('51');
+  svg.append('text').attr('x', x(0)).attr('y', top - 10).text(narrow ? '← D' : '← Democratic');
+  svg.append('text').attr('x', x(100)).attr('y', top - 10).attr('text-anchor', 'end').text(narrow ? 'R →' : 'Republican →');
+  svg.append('text').attr('x', x(0)).attr('y', top + bh + 18).text(hd + (narrow ? ' not up' : ' seats not up (thin bars)'));
+  svg.append('text').attr('x', x(100)).attr('y', top + bh + 18).attr('text-anchor', 'end').text(hr + (narrow ? ' not up' : ' seats not up'));
+});
+
+dash.draw('c_fcchart', (el) => {
+  const F = dash.data('forecasts'), C = dash.data('control'), K = dash.data('consensus');
+  if (SB.notOk(el, F)) return;
+  el.replaceChildren();
+  const rows = F.data.filter((f) => f.dem_seats !== null || f.dem_low !== null || f.rep_seats !== null);
+  const pts = rows.map((f) => {
+    let lo = f.dem_low, hi = f.dem_high, pt = f.dem_seats;
+    if (pt === null && lo === null && f.rep_seats !== null) { pt = null; lo = 100 - f.rep_seats; hi = 100 - f.rep_seats; }
+    return { f, lo, hi, pt };
+  });
+  const W = Math.max(280, el.clientWidth), narrow = W < 560;
+  const SHORT = { 'Decision Desk HQ': 'DDHQ', 'Cook Political Report': 'Cook', "Sabato's Crystal Ball": 'Sabato', 'Fox News Power Rankings': 'Fox News', 'Inside Elections': 'Inside Elec.' };
+  const nm = (f) => (narrow && SHORT[f.source] ? SHORT[f.source] : f.source);
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const labW = SB.textW(svg, pts.map((p) => nm(p.f)), 'sb-lbl') + 12;
+  const rowH = 24, m = { t: 18, r: 16, b: 24, l: labW }, H = m.t + m.b + rowH * pts.length;
+  svg.attr('viewBox', `0 0 ${W} ${H}`).attr('height', H); el.style.minHeight = H + 'px';
+  const x = d3.scaleLinear([45, 57], [m.l, W - m.r]);
+  const tickN = narrow ? 4 : Math.min(12, Math.floor((W - m.l) / 40));
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(tickN).tickFormat(d3.format('d')).tickSize(-(H - m.t - m.b))).call(SB.axisClean);
+  svg.append('rect').attr('x', x(51)).attr('y', m.t).attr('width', x(57) - x(51)).attr('height', H - m.t - m.b).style('fill', 'var(--sb-d)').style('opacity', 0.06);
+  svg.append('line').attr('x1', x(51)).attr('x2', x(51)).attr('y1', m.t - 4).attr('y2', H - m.b).style('stroke', 'var(--color-fg)').style('stroke-dasharray', '4 3');
+  if (!narrow) svg.append('text').attr('x', W - m.r).attr('y', m.t - 6).attr('text-anchor', 'end').text('Democratic majority (51+) →');
+  const cons = K.status === 'ok' && K.data[0] ? K.data[0].dem_seats : null;
+  if (cons !== null) {
+    svg.append('line').attr('x1', x(cons)).attr('x2', x(cons)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--sb-d)').style('stroke-width', 2);
+    svg.append('text').attr('x', x(cons) - 6).attr('y', m.t - 6).attr('text-anchor', 'end').style('fill', 'var(--sb-d)').style('font-weight', 600).text('Consensus ' + cons);
+  }
+  const tt = SB.tip(el);
+  pts.forEach((p, i) => {
+    const cy = m.t + i * rowH + rowH / 2;
+    svg.append('text').attr('class', 'sb-lbl').attr('x', 0).attr('y', cy).attr('dy', '0.35em').text(nm(p.f));
+    const tip = [p.f.source + ' · ' + SBC.when(p.f.as_of), p.f.note || ''];
+    if (p.lo !== null && p.hi !== null && p.hi > p.lo) {
+      svg.append('line').attr('x1', x(p.lo)).attr('x2', x(p.hi)).attr('y1', cy).attr('y2', cy).style('stroke', 'var(--sb-d)').style('stroke-width', 8).style('stroke-linecap', 'round').style('opacity', 0.35)
+        .on('mousemove', (ev) => tt.show(ev, [tip[0], 'Democrats ' + p.lo + '–' + p.hi, tip[1]])).on('mouseleave', () => tt.hide());
+    }
+    const v = p.pt !== null ? p.pt : (p.lo !== null && p.lo === p.hi ? p.lo : null);
+    if (v !== null) {
+      svg.append('circle').attr('cx', x(v)).attr('cy', cy).attr('r', 6).style('fill', p.pt !== null ? 'var(--sb-d)' : 'var(--color-panel)').style('stroke', 'var(--sb-d)').style('stroke-width', 2)
+        .on('mousemove', (ev) => tt.show(ev, [tip[0], (p.pt !== null ? 'Democrats ' : 'Democrats at least ') + v, tip[1]])).on('mouseleave', () => tt.hide());
+    }
+  });
+});
+
+dash.draw('c_fctable', (tb) => {
+  const F = dash.data('forecasts'), C = dash.data('control'), K = dash.data('consensus');
+  tb.replaceChildren();
+  if (F.status !== 'ok') return;
+  const c = C.status === 'ok' ? (Array.isArray(C.data) ? C.data[0] : C.data) : null;
+  const live = c ? { kalshi: [c.kalshi_d, c.kalshi_as_of, c.kalshi_url], polymarket: [c.poly_d, c.poly_as_of, c.poly_url] } : {};
+  const td = (tr, t, cls) => { const e = document.createElement('td'); if (cls) e.className = cls; e.textContent = t; tr.append(e); return e; };
+  F.data.forEach((f) => {
+    const tr = document.createElement('tr');
+    const n = document.createElement('td');
+    if (f.url && /^https:\/\//.test(f.url)) { const a = document.createElement('a'); a.href = f.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = f.source; n.append(a); } else n.textContent = f.source;
+    tr.append(n);
+    td(tr, f.kind, 'sbc-hide-sm');
+    td(tr, f.dem_seats !== null ? String(f.dem_seats) : f.dem_low !== null ? f.dem_low + '–' + f.dem_high : '—', 'num');
+    td(tr, f.rep_seats !== null ? (f.id === 'polymarket' ? '≤' : '') + f.rep_seats : '—', 'num');
+    td(tr, f.tossups !== null ? String(f.tossups) : '—', 'num sbc-hide-sm');
+    const lv = live[f.id];
+    const p = lv && lv[0] !== null && lv[0] !== undefined ? lv[0] : f.p_dem;
+    td(tr, p !== null && p !== undefined ? Math.round(p) + '%' : '—', 'num');
+    const at = lv && lv[0] !== null && lv[0] !== undefined ? lv[1] : f.as_of;
+    const wc = td(tr, SB.day(at));
+    if (at && String(at).length > 10) { const t = document.createElement('span'); t.className = 'sbc-hide-sm'; t.textContent = ', ' + SB.stamp(at).replace(/^[A-Za-z]+ \d+, /, ''); wc.append(t); }
+    tb.append(tr);
+  });
+  if (K.status === 'ok' && K.data[0]) {
+    const k = K.data[0], tr = document.createElement('tr'); tr.className = 'sbc-cons';
+    td(tr, 'Consensus'); td(tr, 'Median / mean', 'sbc-hide-sm'); td(tr, k.dem_seats === null ? '—' : String(k.dem_seats), 'num'); td(tr, k.dem_seats === null ? '—' : String(100 - k.dem_seats), 'num'); td(tr, '—', 'num sbc-hide-sm');
+    td(tr, k.p_dem === null ? '—' : Math.round(k.p_dem) + '%', 'num'); td(tr, '');
+    tb.append(tr);
+  }
+});
+
+document.querySelectorAll('.sbc-mode').forEach((b) => b.addEventListener('click', () => dash.setParams({ map_mode: b.dataset.mode })));
+dash.onData(() => { const md = SBC.mode(); document.querySelectorAll('.sbc-mode').forEach((b) => b.setAttribute('aria-pressed', b.dataset.mode === md ? 'true' : 'false')); });
+
+dash.draw('c_legend', (el) => {
+  el.replaceChildren();
+  const md = SBC.mode();
+  const items = md === 'polls'
+    ? [['sd', 'D/I +15'], ['ld', '+5–15'], ['wd', '+2–5'], ['tu', 'within 2'], ['wr', 'R+2–5'], ['lr', 'R+5–15'], ['sr', 'R+15'], ['si', 'Independent leads'], ['none', 'No race / no polls']]
+    : [['sd', 'Safe D (95%+)'], ['ld', 'Likely D'], ['wd', 'Lean D'], ['tu', 'Toss-up (40–60%)'], ['wr', 'Lean R'], ['lr', 'Likely R'], ['sr', 'Safe R'], ['si', 'Independent favored'], ['none', 'No race']];
+  items.forEach(([k, t]) => { const s = document.createElement('span'); const i = document.createElement('i'); i.style.background = 'var(--c-' + k + ')'; s.append(i, document.createTextNode(t)); el.append(s); });
+});
+
+const sbcSelected = () => {
+  const A = dash.data('all_races');
+  const p = dash.params().map_state;
+  if (p) return p;
+  if (A.status !== 'ok') return null;
+  const best = A.data.map((r) => ({ c: r.code, d: Math.abs((SBC.opp(r, 'markets') ?? 0) - 50) })).sort((a, b) => a.d - b.d)[0];
+  return best ? best.c : null;
+};
+
+dash.draw('c_map', (el) => {
+  const A = dash.data('all_races'), S = dash.data('state_shapes'), H = dash.data('holdover');
+  if (SB.notOk(el, A, S, H)) return;
+  el.replaceChildren();
+  const races = new Map(A.data.map((r) => [r.code, r])), hold = new Map(H.data.map((h) => [h.code, h]));
+  const md = SBC.mode(), sel = sbcSelected();
+  const W = 975, Hh = 610;
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W + 60} ${Hh}`).attr('role', 'img').attr('aria-label', 'Map of 2026 Senate races');
+  const tt = SB.tip(el);
+  const small = new Set(['VT', 'NH', 'MA', 'RI', 'CT', 'NJ', 'DE', 'MD']);
+  const tipFor = (code, name) => {
+    const r = races.get(code), h = hold.get(code);
+    if (!r) return [name, 'No Senate race in 2026', 'Seats: ' + (h ? (h.hold_d ? h.hold_d + ' D' : '') + (h.hold_d && h.hold_r ? ', ' : '') + (h.hold_r ? h.hold_r + ' R' : '') : '—')];
+    const p = SBC.opp(r, md === 'polls' ? 'markets' : md);
+    return [r.state, SBC.cand(r).replace(/ \(.\)/g, '') + ' ' + SBC.pct(p), r.r_name + ' ' + SBC.pct(p === null ? null : 100 - p), 'Polls ' + SBC.marg(SBC.num(r.poll_margin))];
+  };
+  const pick = (code) => { if (races.has(code)) dash.setParams({ map_state: code }); };
+  S.data.forEach((s) => {
+    const r = races.get(s.code);
+    svg.append('path').attr('d', s.d).attr('class', 'st' + (r ? '' : ' norace') + (s.code === sel ? ' sel' : ''))
+      .style('fill', SBC.fillFor(r, md)).style('opacity', r ? 1 : 0.6)
+      .on('mousemove', (ev) => tt.show(ev, tipFor(s.code, s.name))).on('mouseleave', () => tt.hide())
+      .on('click', () => pick(s.code));
+  });
+  const sp = S.data.find((s) => s.code === sel);
+  if (sp) svg.append('path').attr('d', sp.d).style('fill', 'none').style('stroke', 'var(--color-fg)').style('stroke-width', 2.5).style('pointer-events', 'none');
+  S.data.filter((s) => !small.has(s.code)).forEach((s) => {
+    const r = races.get(s.code);
+    const dark = r && ['sd', 'sr', 'ld', 'lr', 'si'].some((k) => SBC.fillFor(r, md) === 'var(--c-' + k + ')');
+    svg.append('text').attr('x', s.cx).attr('y', s.cy).attr('dy', '0.35em').attr('text-anchor', 'middle')
+      .style('fill', dark ? '#fff' : 'var(--color-fg)').style('opacity', r ? 0.95 : 0.5).style('font-weight', r ? 600 : 400).text(s.code);
+  });
+  [...small].forEach((code, i) => {
+    const r = races.get(code), y = 150 + i * 30, xx = W - 10;
+    svg.append('rect').attr('class', 'sq' + (code === sel ? ' sel' : '')).attr('x', xx).attr('y', y).attr('width', 22).attr('height', 22).attr('rx', 3)
+      .style('fill', SBC.fillFor(r, md)).style('opacity', r ? 1 : 0.6).style('cursor', r ? 'pointer' : 'default')
+      .on('mousemove', (ev) => tt.show(ev, tipFor(code, (S.data.find((s) => s.code === code) || {}).name || code))).on('mouseleave', () => tt.hide())
+      .on('click', () => pick(code));
+    svg.append('text').attr('x', xx + 28).attr('y', y + 11).attr('dy', '0.35em').style('fill', 'var(--color-fg)').style('opacity', r ? 0.95 : 0.5).style('font-weight', r ? 600 : 400).text(code);
+  });
+});
+
+dash.draw('c_detail', (el) => {
+  const A = dash.data('all_races'), H = dash.data('holdover');
+  if (SB.notOk(el, A, H)) return;
+  el.replaceChildren();
+  const code = sbcSelected();
+  const r = A.data.find((x) => x.code === code);
+  if (!r) { const p = document.createElement('p'); p.className = 'sbc-dm'; p.textContent = 'Click a state with a race.'; el.append(p); return; }
+  const h = H.data.find((x) => x.code === code);
+  const add = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; el.append(e); return e; };
+  add('h4', 'sbc-dt', r.state);
+  add('p', 'sbc-dm', (r.holder === 'R' ? 'Republican-held' : 'Democratic-held') + ' · ' + (r.incumbent_running ? 'incumbent running' : 'open seat'));
+  const pm = SBC.opp(r, 'markets');
+  if (pm !== null) { const b = add('span', 'sbc-rating', SBC.ratingLabel(r, pm) + ' · markets'); b.style.background = SBC.fillFor(r, 'markets'); b.style.alignSelf = 'flex-start'; }
+  const who = add('p', 'sbc-dm');
+  const oc = document.createElement('span'); oc.style.color = r.opp_party === 'I' ? 'var(--c-si)' : 'var(--sb-d)'; oc.style.fontWeight = 600; oc.textContent = SBC.cand(r);
+  const rc = document.createElement('span'); rc.style.color = 'var(--sb-r)'; rc.style.fontWeight = 600; rc.textContent = r.r_name + ' (R)';
+  who.append(oc, document.createTextNode(' vs '), rc);
+  const prow = (label, v, when) => {
+    const row = add('div', 'sbc-prow');
+    const l = document.createElement('span'); l.textContent = label; l.title = when || '';
+    const bar = document.createElement('div'); bar.className = 'sbc-pbar';
+    const a = document.createElement('span'), b = document.createElement('span');
+    if (v !== null) { a.style.width = v + '%'; a.style.background = r.opp_party === 'I' ? 'var(--c-si)' : 'var(--sb-d)'; b.style.width = (100 - v) + '%'; b.style.background = 'var(--sb-r)'; }
+    bar.append(a, b);
+    const n = document.createElement('span'); n.style.textAlign = 'right'; n.textContent = SBC.pct(v);
+    row.append(l, bar, n);
+  };
+  const kk = SBC.num(r.kalshi_r) !== null ? 100 - SBC.num(r.kalshi_r) : null;
+  const pp = SBC.num(r.poly_r) !== null ? 100 - SBC.num(r.poly_r) : null;
+  add('p', 'sbc-dm', 'Chance the ' + (r.opp_party === 'I' ? 'independent' : 'non-Republican candidate') + ' wins');
+  prow('Kalshi', kk, SBC.when(r.kalshi_as_of));
+  prow('Polymarket', pp, SBC.when(r.poly_as_of));
+  prow('DDHQ model', SBC.num(r.ddhq_opp), SBC.when(r.ddhq_as_of));
+  const dl = add('dl', 'sbc-kv');
+  const kv = (k, v) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; dl.append(dt, dd); };
+  kv('Polling margin', SBC.marg(SBC.num(r.poll_margin)) + (r.poll_margin === null ? ' (no public polls)' : ''));
+  kv('DDHQ rating', r.ddhq_rating || '—');
+  if (r.d_name && r.i_name) kv('Also running', r.i_name + ' (I)');
+  if (h) kv('Other seat (not up)', (h.hold_d ? 'Democratic' : 'Republican') + (h.note ? ' · ' + h.note : ''));
+  kv('Prices as of', SBC.when(r.kalshi_as_of || r.poly_as_of) || '—');
+  const bg = ['TX', 'OH', 'MI', 'ME', 'KS', 'SC', 'MN'];
+  if (bg.includes(r.code)) {
+    const btn = add('button', 'sb-btn', 'See every poll in this race'); btn.type = 'button'; btn.style.alignSelf = 'flex-start';
+    btn.addEventListener('click', () => { dash.setParams({ state: r.code }); const t = document.getElementById('polls'); if (t) t.scrollIntoView({ behavior: 'smooth' }); });
+  }
+  const links = add('div', 'sbc-links');
+  [['Kalshi', r.kalshi_url], ['Polymarket', r.poly_url], ['DDHQ', r.ddhq_url], ['Polls', r.poll_url]].forEach(([t, u]) => {
+    if (!u || !/^https:\/\//.test(u)) return; const a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener'; a.textContent = t; links.append(a);
+  });
+});
+
+dash.draw('c_races', (tb) => {
+  const A = dash.data('all_races');
+  tb.replaceChildren();
+  if (A.status !== 'ok') return;
+  const sel = sbcSelected();
+  const rows = A.data.map((r) => ({ r, p: SBC.opp(r, 'markets') })).sort((a, b) => Math.abs(a.p - 50) - Math.abs(b.p - 50));
+  rows.forEach(({ r, p }) => {
+    const tr = document.createElement('tr'); tr.className = 'sbc-click' + (r.code === sel ? ' is-sel' : ''); tr.dataset.key = r.code; tr.tabIndex = 0;
+    const td = (t, cls) => { const e = document.createElement('td'); if (cls) e.className = cls; e.textContent = t; tr.append(e); return e; };
+    const st = document.createElement('td'); const sw = document.createElement('span'); sw.className = 'sbc-sw'; sw.style.background = SBC.fillFor(r, 'markets'); st.append(sw, document.createTextNode(r.state)); tr.append(st);
+    td(SBC.cand(r)); td(r.r_name);
+    td(r.holder, 'sbc-hide-sm');
+    const mc = td(p === null ? '—' : (p >= 50 ? (r.opp_party === 'I' ? 'I ' : 'D ') + SBC.pct(p) : 'R ' + SBC.pct(100 - p)), 'num'); mc.style.fontWeight = 600; mc.style.color = p >= 50 ? (r.opp_party === 'I' ? 'var(--c-si)' : 'var(--sb-d)') : 'var(--sb-r)';
+    td(SBC.pct(SBC.num(r.kalshi_r) === null ? null : 100 - r.kalshi_r), 'num sbc-hide-sm');
+    td(SBC.pct(SBC.num(r.poly_r) === null ? null : 100 - r.poly_r), 'num sbc-hide-sm');
+    td(SBC.pct(SBC.num(r.ddhq_opp)), 'num sbc-hide-sm');
+    td(SBC.marg(SBC.num(r.poll_margin)), 'num');
+    tb.append(tr);
+  });
+  tb.onclick = (e) => { const tr = e.target.closest('tr[data-key]'); if (tr) { dash.setParams({ map_state: tr.dataset.key }); const m = document.querySelector('.sbc-mapwrap'); if (m) m.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } };
+  tb.onkeydown = (e) => { if (e.key === 'Enter') { const tr = e.target.closest('tr[data-key]'); if (tr) tr.click(); } };
 });
 </script>
 <script>dash.start();</script>

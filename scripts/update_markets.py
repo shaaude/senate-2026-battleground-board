@@ -116,6 +116,13 @@ def kalshi_event(code):
                 return t, markets
         except Exception as e:
             last_err = e
+    try:  # fall back to the series' open events
+        body = get(f"https://api.elections.kalshi.com/trade-api/v2/events?series_ticker=SENATE{code}&status=open&with_nested_markets=true")
+        for ev in body.get("events") or []:
+            if "26" in str(ev.get("event_ticker", "")) and ev.get("markets"):
+                return ev["event_ticker"], ev["markets"]
+    except Exception as e:
+        last_err = e
     raise ValueError(f"no Kalshi event among {tickers}: {last_err}")
 
 
@@ -230,6 +237,7 @@ def main():
     races = json.load(open(p("races.json")))
     hist = json.load(open(p("kalshi_history.json")))
     control = json.load(open(p("control.json")))
+    control = control[0] if isinstance(control, list) else control
     status = {"markets_checked_at": stamp,
               "kalshi": {"updated": [], "errors": {}}, "polymarket": {"updated": [], "errors": {}},
               "control": {}}
@@ -281,7 +289,7 @@ def main():
     json.dump(all_races, open(p("all_races.json"), "w"), indent=1, ensure_ascii=False)
     json.dump(races, open(p("races.json"), "w"), indent=1, ensure_ascii=False)
     json.dump(hist, open(p("kalshi_history.json"), "w"), indent=1, ensure_ascii=False)
-    json.dump(control, open(p("control.json"), "w"), indent=1, ensure_ascii=False)
+    json.dump([control], open(p("control.json"), "w"), indent=1, ensure_ascii=False)
     json.dump(status, open(p("status.json"), "w"), indent=1, ensure_ascii=False)
     print(json.dumps(status, indent=1))
     if not status["kalshi"]["updated"] and not status["polymarket"]["updated"]:
