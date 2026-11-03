@@ -8,10 +8,10 @@
   "dem_high": null,
   "rep_seats": null,
   "tossups": null,
-  "p_dem": 74,
-  "as_of": "2026-11-02",
-  "url": "https://news.kalshi.com/p/final-2026-midterm-odds",
-  "note": "Median of the Democratic-seats market (53+ priced at 52% on Nov 2 per DeFi Rate); control price 74% as of Nov 2 noon ET."
+  "p_dem": 75,
+  "as_of": "2026-11-03",
+  "url": "https://www.theblock.co/news/regulation/2026-11-03-midterm-election-odds-polymarket-kalshi-democrats-432461",
+  "note": "Control 75% early Tuesday afternoon Nov 3 (The Block); Democratic-seats market prices 'above 52' at 55% (DeFi Rate, Nov 3 9:31 AM ET)."
  },
  {
   "id": "polymarket",
@@ -22,24 +22,24 @@
   "dem_high": null,
   "rep_seats": 47,
   "tossups": null,
-  "p_dem": 72.5,
-  "as_of": "2026-11-02",
-  "url": "https://polymarkettrader.com/odds/senate-forecast-2026/",
-  "note": "Control price 72.5% (Nov 2, 13:47 UTC); Republican-seats market puts 54% on 47 or fewer."
+  "p_dem": 76,
+  "as_of": "2026-11-03",
+  "url": "https://www.theblock.co/news/regulation/2026-11-03-midterm-election-odds-polymarket-kalshi-democrats-432461",
+  "note": "Control 76% early Tuesday afternoon Nov 3 (The Block); Republican-seats market puts 56% on 47 or fewer (DeFi Rate, Nov 3)."
  },
  {
   "id": "silver",
   "source": "Silver Bulletin (FLIPR)",
   "kind": "Model",
-  "dem_seats": null,
+  "dem_seats": 53,
   "dem_low": null,
   "dem_high": null,
-  "rep_seats": null,
+  "rep_seats": 47,
   "tossups": null,
-  "p_dem": 80.1,
-  "as_of": "2026-11-01",
-  "url": "https://www.newsweek.com/nate-silver-says-gop-could-be-in-for-long-night-as-final-polls-drop-12648643",
-  "note": "Seat average not in public reporting."
+  "p_dem": 81.5,
+  "as_of": "2026-11-02",
+  "url": "https://www.newsweek.com/final-polls-democrats-chances-flip-senate-12651971",
+  "note": "81.5% at 2 p.m. ET Monday Nov 2; average projection 53–47."
  },
  {
   "id": "rtwh",
@@ -87,15 +87,15 @@
   "id": "economist",
   "source": "The Economist",
   "kind": "Model",
-  "dem_seats": null,
+  "dem_seats": 51,
   "dem_low": null,
   "dem_high": null,
   "rep_seats": null,
   "tossups": null,
   "p_dem": 56,
-  "as_of": "2026-10-27",
-  "url": "https://x.com/TheEconomist/status/2114935153680126459",
-  "note": "Latest figure found; seat projection not in reachable sources."
+  "as_of": "2026-11-03",
+  "url": "https://www.newsweek.com/who-will-win-the-midterms-what-6-major-forecasters-predict-12651907",
+  "note": "Median 51 Democratic seats (reported Nov 3); 56% control figure is from Oct 27."
  },
  {
   "id": "ie",
