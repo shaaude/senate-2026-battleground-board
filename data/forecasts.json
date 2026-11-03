@@ -3,15 +3,15 @@
   "id": "kalshi",
   "source": "Kalshi",
   "kind": "Market",
-  "dem_seats": 52,
+  "dem_seats": 53,
   "dem_low": null,
   "dem_high": null,
   "rep_seats": null,
   "tossups": null,
-  "p_dem": 72,
+  "p_dem": 74,
   "as_of": "2026-11-02",
-  "url": "https://defirate.com/odds/senate-seats/",
-  "note": "Median of the Democratic-seats market (counted Feb 1, 2027); control price 72%."
+  "url": "https://news.kalshi.com/p/final-2026-midterm-odds",
+  "note": "Median of the Democratic-seats market (53+ priced at 52% on Nov 2 per DeFi Rate); control price 74% as of Nov 2 noon ET."
  },
  {
   "id": "polymarket",
@@ -22,10 +22,10 @@
   "dem_high": null,
   "rep_seats": 47,
   "tossups": null,
-  "p_dem": 66,
+  "p_dem": 72.5,
   "as_of": "2026-11-02",
-  "url": "https://defirate.com/odds/senate-seats/",
-  "note": "Republican-seats market puts 54% on 47 or fewer; control price as of Oct 27 until refreshed."
+  "url": "https://polymarkettrader.com/odds/senate-forecast-2026/",
+  "note": "Control price 72.5% (Nov 2, 13:47 UTC); Republican-seats market puts 54% on 47 or fewer."
  },
  {
   "id": "silver",
@@ -59,15 +59,15 @@
   "id": "poliwave",
   "source": "Poliwave",
   "kind": "Model",
-  "dem_seats": 52,
-  "dem_low": 49,
+  "dem_seats": 53,
+  "dem_low": 50,
   "dem_high": 55,
   "rep_seats": 47,
   "tossups": null,
-  "p_dem": 77,
-  "as_of": "2026-11-01",
+  "p_dem": 85,
+  "as_of": "2026-11-02",
   "url": "https://www.poliwave.com/us/fed/projection",
-  "note": "Median seats, 80% range; ~8% chance an independent decides control."
+  "note": "Median seats, 80% range 50–55; GOP 12%, ~3% chance independents decide control. Run Nov 2, 10:29 PM ET."
  },
  {
   "id": "ddhq",
@@ -77,11 +77,11 @@
   "dem_low": null,
   "dem_high": null,
   "rep_seats": 48,
-  "tossups": null,
-  "p_dem": 62,
-  "as_of": "2026-11-01",
+  "tossups": 3,
+  "p_dem": 65,
+  "as_of": "2026-11-02",
   "url": "https://votes.decisiondeskhq.com/forecast/2026/senate",
-  "note": "Projected seats; 1M simulations."
+  "note": "Projected seats; toss-ups KS, IA, OH. Updated Nov 2, 3:04 PM."
  },
  {
   "id": "economist",
