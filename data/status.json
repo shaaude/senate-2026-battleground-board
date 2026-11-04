@@ -1,44 +1,44 @@
 {
- "markets_checked_at": "2026-11-04T00:55:22Z",
+ "markets_checked_at": "2026-11-04T03:22:51Z",
  "kalshi": {
   "updated": [
    "AL",
    "AK",
    "AR",
-   "CO",
-   "DE",
-   "FL",
-   "GA",
    "ID",
-   "IL",
    "IA",
    "KS",
-   "LA",
    "ME",
-   "MA",
    "MI",
    "MN",
    "MS",
    "MT",
    "NE",
-   "NH",
-   "NJ",
-   "NM",
-   "NC",
    "OH",
-   "OK",
    "OR",
-   "RI",
    "SC",
    "SD",
    "TN",
-   "TX",
-   "WV",
-   "WY"
+   "TX"
   ],
   "errors": {
+   "CO": "ValueError: no party contracts found",
+   "DE": "ValueError: no party contracts found",
+   "FL": "ValueError: no party contracts found",
+   "GA": "ValueError: no party contracts found",
+   "IL": "ValueError: no party contracts found",
    "KY": "ValueError: no Kalshi event among ['SENATEKY-26']: HTTP Error 404: Not Found",
-   "VA": "ValueError: no party contracts found"
+   "LA": "ValueError: no party contracts found",
+   "MA": "ValueError: no party contracts found",
+   "NH": "ValueError: no party contracts found",
+   "NJ": "ValueError: no party contracts found",
+   "NM": "ValueError: no party contracts found",
+   "NC": "ValueError: no party contracts found",
+   "OK": "ValueError: no party contracts found",
+   "RI": "ValueError: no party contracts found",
+   "VA": "ValueError: no party contracts found",
+   "WV": "ValueError: no party contracts found",
+   "WY": "ValueError: no party contracts found"
   }
  },
  "polymarket": {
@@ -75,11 +75,12 @@
    "SD",
    "TN",
    "TX",
-   "VA",
    "WV",
    "WY"
   ],
-  "errors": {}
+  "errors": {
+   "VA": "ValueError: no party contracts found"
+  }
  },
  "control": {}
 }
