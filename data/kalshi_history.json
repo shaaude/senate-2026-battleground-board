@@ -1258,5 +1258,54 @@
   "date": "2026-11-03T23:43:38Z",
   "kalshi_dem": 94,
   "url": "https://kalshi.com/markets/senatemn/minnesota-senate-race/senatemn-26"
+ },
+ {
+  "key": "TX-2026-11-04T00:51:56Z",
+  "code": "TX",
+  "date": "2026-11-04T00:51:56Z",
+  "kalshi_dem": 80,
+  "url": "https://kalshi.com/markets/senatetx/texas-senate-race/senatetx-26"
+ },
+ {
+  "key": "OH-2026-11-04T00:51:56Z",
+  "code": "OH",
+  "date": "2026-11-04T00:51:56Z",
+  "kalshi_dem": 90,
+  "url": "https://kalshi.com/markets/senateohs/special-senate-election-in-ohio/senateohs-26"
+ },
+ {
+  "key": "MI-2026-11-04T00:51:56Z",
+  "code": "MI",
+  "date": "2026-11-04T00:51:56Z",
+  "kalshi_dem": 87,
+  "url": "https://kalshi.com/markets/senatemi/michigan-senate-race/senatemi-26"
+ },
+ {
+  "key": "ME-2026-11-04T00:51:56Z",
+  "code": "ME",
+  "date": "2026-11-04T00:51:56Z",
+  "kalshi_dem": 76,
+  "url": "https://kalshi.com/markets/senateme/maine-senate-race/senateme-26"
+ },
+ {
+  "key": "KS-2026-11-04T00:51:56Z",
+  "code": "KS",
+  "date": "2026-11-04T00:51:56Z",
+  "kalshi_dem": 74,
+  "url": "https://kalshi.com/markets/senateks/kansas-senate-race/senateks-26"
+ },
+ {
+  "key": "SC-2026-11-04T00:51:56Z",
+  "code": "SC",
+  "date": "2026-11-04T00:51:56Z",
+  "kalshi_dem": 57,
+  "url": "https://kalshi.com/markets/senatesc/south-carolina-senate-race/senatesc-26"
+ },
+ {
+  "key": "MN-2026-11-04T00:51:56Z",
+  "code": "MN",
+  "date": "2026-11-04T00:51:56Z",
+  "kalshi_dem": 93,
+  "url": "https://kalshi.com/markets/senatemn/minnesota-senate-race/senatemn-26"
  }
 ]

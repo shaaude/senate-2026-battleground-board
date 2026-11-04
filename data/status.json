@@ -1,5 +1,5 @@
 {
- "markets_checked_at": "2026-11-03T23:49:37Z",
+ "markets_checked_at": "2026-11-04T00:51:56Z",
  "kalshi": {
   "updated": [
    "AL",
@@ -33,12 +33,12 @@
    "SD",
    "TN",
    "TX",
-   "VA",
    "WV",
    "WY"
   ],
   "errors": {
-   "KY": "ValueError: no Kalshi event among ['SENATEKY-26']: HTTP Error 404: Not Found"
+   "KY": "ValueError: no Kalshi event among ['SENATEKY-26']: HTTP Error 404: Not Found",
+   "VA": "ValueError: no party contracts found"
   }
  },
  "polymarket": {
