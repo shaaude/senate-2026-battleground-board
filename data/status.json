@@ -1,5 +1,5 @@
 {
- "markets_checked_at": "2026-11-04T11:29:45Z",
+ "markets_checked_at": "2026-11-04T18:50:33Z",
  "kalshi": {
   "updated": [
    "AK",
@@ -44,8 +44,7 @@
  "polymarket": {
   "updated": [
    "AK",
-   "MS",
-   "NE"
+   "MS"
   ],
   "errors": {
    "AL": "ValueError: no matching open Polymarket event (alabama-senate-election-winner)",
@@ -65,6 +64,7 @@
    "MI": "ValueError: no party contracts found",
    "MN": "ValueError: no party contracts found",
    "MT": "ValueError: no party contracts found",
+   "NE": "ValueError: no party contracts found",
    "NH": "ValueError: no party contracts found",
    "NJ": "ValueError: no party contracts found",
    "NM": "ValueError: no party contracts found",
