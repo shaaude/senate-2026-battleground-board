@@ -24,7 +24,7 @@
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/texas/talarico-vs-paxton",
   "ind_margin": 2.8,
   "pulled_at": "2026-11-03T21:35:00Z",
-  "markets_checked_at": "2026-11-09T06:06:12Z"
+  "markets_checked_at": "2026-11-09T16:06:55Z"
  },
  {
   "code": "OH",
@@ -51,7 +51,7 @@
   "rcp_url": "https://www.realclearpolling.com/polls/senate/special-election/2026/ohio/husted-vs-brown",
   "ind_margin": 2.5,
   "pulled_at": "2026-11-03T21:35:00Z",
-  "markets_checked_at": "2026-11-09T06:06:12Z"
+  "markets_checked_at": "2026-11-09T16:06:55Z"
  },
  {
   "code": "MI",
@@ -78,7 +78,7 @@
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/michigan/rogers-vs-el-sayed",
   "ind_margin": 4.3,
   "pulled_at": "2026-11-03T21:35:00Z",
-  "markets_checked_at": "2026-11-09T06:06:12Z"
+  "markets_checked_at": "2026-11-09T16:06:55Z"
  },
  {
   "code": "ME",
@@ -105,7 +105,7 @@
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/maine/collins-vs-jackson",
   "ind_margin": 2.7,
   "pulled_at": "2026-11-03T21:35:00Z",
-  "markets_checked_at": "2026-11-09T06:06:12Z"
+  "markets_checked_at": "2026-11-09T16:06:55Z"
  },
  {
   "code": "KS",
@@ -132,7 +132,7 @@
   "poly_as_of": "2026-11-04T03:22:51Z",
   "poly_url": "https://polymarket.com/event/kansas-senate-election-winner",
   "pulled_at": "2026-11-03T21:35:00Z",
-  "markets_checked_at": "2026-11-09T06:06:12Z"
+  "markets_checked_at": "2026-11-09T16:06:55Z"
  },
  {
   "code": "SC",
@@ -159,7 +159,7 @@
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/south-carolina/graham-nordone-vs-andrews",
   "ind_margin": -1.4,
   "pulled_at": "2026-11-03T21:35:00Z",
-  "markets_checked_at": "2026-11-09T06:06:12Z"
+  "markets_checked_at": "2026-11-09T16:06:55Z"
  },
  {
   "code": "MN",
@@ -186,6 +186,6 @@
   "rcp_url": "https://www.realclearpolling.com/polls/senate/general/2026/minnesota/tafoya-vs-flanagan",
   "ind_margin": 4.7,
   "pulled_at": "2026-11-03T21:35:00Z",
-  "markets_checked_at": "2026-11-09T06:06:12Z"
+  "markets_checked_at": "2026-11-09T16:06:55Z"
  }
 ]
